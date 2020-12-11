@@ -6,17 +6,26 @@ extern crate tracing;
 
 pub mod error;
 pub mod model;
+pub mod utils;
 
 use crate::error::*;
 use crate::model::*;
+use crate::utils::tokens::gen_token;
+
+use std::env;
 
 use actix_identity::{Identity, CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 use actix_web::http::header;
+
 use time::Duration;
 use handlebars::Handlebars;
 use darkredis::ConnectionPool;
 use toml::Value;
+use sqlx::postgres::{
+    PgPoolOptions,
+    PgPool,
+};
 
 use tokio::fs::File;
 use tokio::prelude::*;
@@ -31,8 +40,8 @@ struct OAuthCode {
     code: String,
 }
 
-async fn index(id: Identity, hb: web::Data<Handlebars<'_>>, pool: web::Data<ConnectionPool>) -> HttpResponse {
-    let mut conn = pool.get().await;
+async fn index(id: Identity, hb: web::Data<Handlebars<'_>>, redis: web::Data<ConnectionPool>) -> HttpResponse {
+    let mut conn = redis.get().await;
 
     if let Some(token) = id.identity() {
         if conn.get(&token).await.unwrap().is_some() {
@@ -60,8 +69,8 @@ async fn index(id: Identity, hb: web::Data<Handlebars<'_>>, pool: web::Data<Conn
     HttpResponse::Found().header(header::LOCATION, "/login").finish()
 }
 
-async fn login(id: Identity, hb: web::Data<Handlebars<'_>>, pool: web::Data<ConnectionPool>, config: web::Data<Config>) -> HttpResponse {
-    let mut conn = pool.get().await;
+async fn login(id: Identity, hb: web::Data<Handlebars<'_>>, redis: web::Data<ConnectionPool>, config: web::Data<Config>) -> HttpResponse {
+    let mut conn = redis.get().await;
 
     if let Some(token) = id.identity() {
         if conn.get(&token).await.unwrap().is_some() {
@@ -80,9 +89,52 @@ async fn login(id: Identity, hb: web::Data<Handlebars<'_>>, pool: web::Data<Conn
     HttpResponse::Ok().body(&body)
 }
 
-async fn logout(id: Identity, pool: web::Data<ConnectionPool>) -> HttpResponse {
+async fn get_token(id: Identity, redis: web::Data<ConnectionPool>, db: web::Data<PgPool>, config: web::Data<Config>) -> HttpResponse {
+    let mut conn = redis.get().await;
+
     if let Some(token) = id.identity() {
-        let mut conn = pool.get().await;
+        if conn.get(&token).await.unwrap().is_some() {
+            let client = reqwest::Client::new();
+            let user = client.get(&format!("{}/users/@me", API_ENDPOINT))
+                .bearer_auth(&token)
+                .send()
+                .await
+                .unwrap()
+                .json::<UserResponse>()
+                .await
+                .unwrap();
+
+
+            let data = sqlx::query!("SELECT token FROM tokens WHERE user_id = $1 AND email = $2", user.id as i64, &user.email)
+                .fetch_optional(db.as_ref())
+                .await
+                .unwrap();
+
+            if let Some(token) = data {
+                return HttpResponse::Ok().body(token.token)
+            } else {
+                let token = gen_token(
+                    user.id, &user.email,
+                    &hex::decode(&config.secret_key).unwrap(),
+                    &hex::decode(&config.iv_key).unwrap(),
+                ).unwrap_or("null".to_string());
+
+                sqlx::query!("INSERT INTO tokens (user_id, email, token) VALUES ($1, $2, $3)", user.id as i64, &user.email, &token)
+                    .execute(db.as_ref())
+                    .await
+                    .unwrap();
+
+                return HttpResponse::Ok().body(token)
+            }
+        }
+    }
+
+    HttpResponse::Ok().body("null")
+}
+
+async fn logout(id: Identity, redis: web::Data<ConnectionPool>) -> HttpResponse {
+    if let Some(token) = id.identity() {
+        let mut conn = redis.get().await;
 
         let _ = conn.del(token).await;
     }
@@ -91,8 +143,7 @@ async fn logout(id: Identity, pool: web::Data<ConnectionPool>) -> HttpResponse {
     HttpResponse::Found().header(header::LOCATION, "/").finish()
 }
 
-async fn oauth(code: web::Query<OAuthCode>, id: Identity, pool: web::Data<ConnectionPool>, config: web::Data<Config>) -> ServiceResult<HttpResponse> {
-
+async fn oauth(code: web::Query<OAuthCode>, id: Identity, redis: web::Data<ConnectionPool>, config: web::Data<Config>) -> ServiceResult<HttpResponse> {
     let code = code.code.to_string();
 
     let client_id = config.client_id;
@@ -123,7 +174,7 @@ async fn oauth(code: web::Query<OAuthCode>, id: Identity, pool: web::Data<Connec
         };
 
     id.remember(resp.access_token.to_string());
-    let mut conn = pool.get().await;
+    let mut conn = redis.get().await;
     conn.set_and_expire_seconds(&resp.access_token, &resp.refresh_token, resp.expires_in).await.unwrap();
 
     Ok(HttpResponse::Found().header(header::LOCATION, "/").finish())
@@ -153,11 +204,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         log: values["log"].as_str().unwrap_or("actix_web=info").to_string(),
 
         secret_key: values["secret_key"].as_str().unwrap().to_string(),
+        iv_key: values["iv_key"].as_str().unwrap().to_string(),
 
         oauth2_url: values["oauth2_url"].as_str().unwrap().to_string(),
         client_id: values["client_id"].as_integer().unwrap() as u64,
         client_secret: values["client_secret"].as_str().unwrap().to_string(),
         redirect_uri: values["redirect_uri"].as_str().unwrap().to_string(),
+
+        redis_uri: values["redis_uri"].as_str().unwrap_or("127.0.0.1:6379").to_string(),
     };
 
     std::env::set_var("RUST_LOG", &config.log);
@@ -168,8 +222,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     handlebars.register_templates_directory(".html.hbs", "./templates")?;
     let handlebars_ref = web::Data::new(handlebars);
     
-    let pool = ConnectionPool::create("127.0.0.1:6379".into(), None, 2).await?;
-    let pool_ref = web::Data::new(pool);
+    let redis = ConnectionPool::create((&config.redis_uri).into(), None, 2).await?;
+    let redis_ref = web::Data::new(redis);
+
+    let db = PgPoolOptions::new()
+        .max_connections(config.workers as u32)
+        .connect(&env::var("DATABASE_URL")?).await?;
+    let db_ref = web::Data::new(db);
 
     let config_ref = web::Data::new(config.clone());
 
@@ -187,13 +246,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .secure(false),
             ))
             .app_data(handlebars_ref.clone())
-            .app_data(pool_ref.clone())
+            .app_data(redis_ref.clone())
+            .app_data(db_ref.clone())
             .app_data(config_ref.clone())
             // enable logger - always register actix-web Logger middleware last
             .wrap(middleware::Logger::default())
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/login").route(web::get().to(login)))
             .service(web::resource("/logout").to(logout))
+            .service(web::resource("/token").route(web::get().to(get_token)))
             .service(web::resource("/discord/oauth2").route(web::get().to(oauth)))
     })
     .bind(&format!("{}:{}", &config.address, &config.port))?

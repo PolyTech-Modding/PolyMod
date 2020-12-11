@@ -34,6 +34,7 @@ pub struct UserResponse {
     pub locale: String,
     pub mfa_enabled: bool,
     pub premium_type: Option<u64>,
+    pub email: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -47,10 +48,14 @@ pub struct Config {
 
     // Private Cookies
     pub secret_key: String,
+    pub iv_key: String,
 
     // Discord
     pub oauth2_url: String,
     pub client_id: u64,
     pub client_secret: String,
     pub redirect_uri: String,
+
+    // Other
+    pub redis_uri: String,
 }

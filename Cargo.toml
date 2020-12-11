@@ -1,6 +1,6 @@
 [package]
 name = "polymod"
-version = "0.0.1"
+version = "0.0.2"
 authors = ["nitsuga5124 <nitsuga5124@gmail.com>"]
 edition = "2018"
 
@@ -16,6 +16,8 @@ darkredis = "0.7"
 serde-aux = "1.1"
 toml = "0.5"
 hex = "0.4"
+rust-crypto = "0.2"
+base64 = "0.13"
 
 [dependencies.actix-web]
 version = "3"
@@ -35,3 +37,8 @@ features = ["dir_source"]
 [dependencies.reqwest]
 version = "0.10"
 features = ["json"]
+
+[dependencies.sqlx]
+version = "0.4"
+default-features = false
+features = ["runtime-actix-rustls", "macros", "postgres", "chrono"]
