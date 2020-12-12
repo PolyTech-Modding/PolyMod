@@ -105,13 +105,17 @@ async fn get_token(id: Identity, redis: web::Data<ConnectionPool>, db: web::Data
                 .unwrap();
 
 
-            let data = sqlx::query!("SELECT token FROM tokens WHERE user_id = $1 AND email = $2", user.id as i64, &user.email)
+            let query = sqlx::query!("SELECT token, is_banned FROM tokens WHERE user_id = $1 AND email = $2", user.id as i64, &user.email)
                 .fetch_optional(db.as_ref())
                 .await
                 .unwrap();
 
-            if let Some(token) = data {
-                return HttpResponse::Ok().body(token.token)
+            if let Some(data) = query {
+                if data.is_banned {
+                    return HttpResponse::Ok().body("Account has been banned.")
+                } else {
+                    return HttpResponse::Ok().body(data.token)
+                }
             } else {
                 let token = gen_token(
                     user.id, &user.email,
