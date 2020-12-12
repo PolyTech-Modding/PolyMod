@@ -14,9 +14,10 @@ use crate::utils::tokens::gen_token;
 
 use std::env;
 
-use actix_identity::{Identity, CookieIdentityPolicy, IdentityService};
 use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 use actix_web::http::header;
+use actix_identity::{Identity, CookieIdentityPolicy, IdentityService};
+use actix_ratelimit::{RateLimiter, RedisStore, RedisStoreActor};
 
 use time::Duration;
 use handlebars::Handlebars;
@@ -228,6 +229,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let redis = ConnectionPool::create((&config.redis_uri).into(), None, 2).await?;
     let redis_ref = web::Data::new(redis);
+    let store = RedisStore::connect(&format!("redis://{}", &config.redis_uri));
 
     let db = PgPoolOptions::new()
         .max_connections(config.workers as u32)
@@ -255,6 +257,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .app_data(config_ref.clone())
             // enable logger - always register actix-web Logger middleware last
             .wrap(middleware::Logger::default())
+            .wrap(
+                // TODO: https://github.com/TerminalWitchcraft/actix-ratelimit/issues/10
+                RateLimiter::new(
+                RedisStoreActor::from(store.clone()).start())
+                    .with_interval(std::time::Duration::from_secs(120))
+                    .with_max_requests(10)
+                    .with_identifier(|req| {
+                        let key = match req.headers().get("Authorization") {
+                            Some(x) => x,
+                            None => {
+                                if let Some(ip) = &req.headers().get("x-real-ip") {
+                                    return Ok(ip.to_str().unwrap().to_string())
+                                } else {
+                                    return Ok(req.peer_addr().unwrap().to_string())
+                                }
+                            },
+                        };
+                        let key = key.to_str().unwrap();
+                        Ok(key.to_string())
+                    })
+            )
+            .wrap(
+                RateLimiter::new(
+                RedisStoreActor::from(store.clone()).start())
+                    .with_interval(std::time::Duration::from_secs(120))
+                    .with_max_requests(60)
+            )
             .service(web::resource("/").route(web::get().to(index)))
             .service(web::resource("/login").route(web::get().to(login)))
             .service(web::resource("/logout").to(logout))

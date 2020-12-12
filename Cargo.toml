@@ -22,6 +22,12 @@ base64 = "0.13"
 [dependencies.actix-web]
 version = "3"
 
+[dependencies.actix-ratelimit]
+git = "https://github.com/TerminalWitchcraft/actix-ratelimit/"
+branch = "master"
+default-features = false
+features = ["redis-store"]
+
 [dependencies.tokio]
 version = "0.2"
 features = ["fs"]
