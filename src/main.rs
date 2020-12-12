@@ -6,23 +6,23 @@ extern crate tracing;
 
 pub mod error;
 pub mod model;
-pub mod utils;
 pub mod routes;
+pub mod utils;
 
 use crate::model::Config;
 use crate::routes::*;
 
 use std::env;
 
-use actix_web::{middleware, web, App, HttpServer};
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_ratelimit::{RateLimiter, RedisStore, RedisStoreActor};
+use actix_web::{middleware, web, App, HttpServer};
 
-use time::Duration;
-use handlebars::Handlebars;
 use darkredis::ConnectionPool;
-use toml::Value;
+use handlebars::Handlebars;
 use sqlx::postgres::PgPoolOptions;
+use time::Duration;
+use toml::Value;
 
 use tokio::fs::File;
 use tokio::prelude::*;
@@ -44,11 +44,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let config = Config {
-        address: values["address"].as_str().unwrap_or("127.0.0.1").to_string(),
+        address: values["address"]
+            .as_str()
+            .unwrap_or("127.0.0.1")
+            .to_string(),
         port: values["port"].as_integer().unwrap_or(8000) as u16,
         workers: values["workers"].as_integer().unwrap_or(1) as usize,
         keep_alive: values["keep_alive"].as_integer().unwrap_or(30) as usize,
-        log: values["log"].as_str().unwrap_or("actix_web=info").to_string(),
+        log: values["log"]
+            .as_str()
+            .unwrap_or("actix_web=info")
+            .to_string(),
 
         secret_key: values["secret_key"].as_str().unwrap().to_string(),
         iv_key: values["iv_key"].as_str().unwrap().to_string(),
@@ -58,24 +64,28 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         client_secret: values["client_secret"].as_str().unwrap().to_string(),
         redirect_uri: values["redirect_uri"].as_str().unwrap().to_string(),
 
-        redis_uri: values["redis_uri"].as_str().unwrap_or("127.0.0.1:6379").to_string(),
+        redis_uri: values["redis_uri"]
+            .as_str()
+            .unwrap_or("127.0.0.1:6379")
+            .to_string(),
     };
 
     std::env::set_var("RUST_LOG", &config.log);
     tracing_subscriber::fmt::init();
 
-    // Handlebars for templating. 
+    // Handlebars for templating.
     let mut handlebars = Handlebars::new();
     handlebars.register_templates_directory(".html.hbs", "./templates")?;
     let handlebars_ref = web::Data::new(handlebars);
-    
+
     let redis = ConnectionPool::create((&config.redis_uri).into(), None, 2).await?;
     let redis_ref = web::Data::new(redis);
     let store = RedisStore::connect(&format!("redis://{}", &config.redis_uri));
 
     let db = PgPoolOptions::new()
         .max_connections(config.workers as u32)
-        .connect(&env::var("DATABASE_URL")?).await?;
+        .connect(&env::var("DATABASE_URL")?)
+        .await?;
     let db_ref = web::Data::new(db);
 
     let config_ref = web::Data::new(config.clone());
@@ -101,30 +111,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .wrap(middleware::Logger::default())
             .wrap(
                 // TODO: https://github.com/TerminalWitchcraft/actix-ratelimit/issues/10
-                RateLimiter::new(
-                RedisStoreActor::from(store.clone()).start())
+                RateLimiter::new(RedisStoreActor::from(store.clone()).start())
                     .with_interval(std::time::Duration::from_secs(120))
-                    .with_max_requests(10)
+                    .with_max_requests(60)
                     .with_identifier(|req| {
                         let key = match req.headers().get("Authorization") {
                             Some(x) => x,
                             None => {
                                 if let Some(ip) = &req.headers().get("x-real-ip") {
-                                    return Ok(ip.to_str().unwrap().to_string())
+                                    return Ok(ip.to_str().unwrap().to_string());
                                 } else {
-                                    return Ok(req.peer_addr().unwrap().to_string())
+                                    return Ok(req.peer_addr().unwrap().to_string());
                                 }
-                            },
+                            }
                         };
                         let key = key.to_str().unwrap();
                         Ok(key.to_string())
-                    })
-            )
-            .wrap(
-                RateLimiter::new(
-                RedisStoreActor::from(store.clone()).start())
-                    .with_interval(std::time::Duration::from_secs(120))
-                    .with_max_requests(60)
+                    }),
             )
             .service(web::resource("/").route(web::get().to(login::index)))
             .service(web::resource("/login").route(web::get().to(login::login)))

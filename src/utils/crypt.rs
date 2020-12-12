@@ -1,7 +1,11 @@
 use crypto::buffer::{BufferResult, ReadBuffer, WriteBuffer};
 use crypto::{aes, blockmodes, buffer, symmetriccipher};
 
-pub fn encrypt_bytes(data: &[u8], key: [u8; 32], iv: [u8; 16]) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
+pub fn encrypt_bytes(
+    data: &[u8],
+    key: [u8; 32],
+    iv: [u8; 16],
+) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
     let mut encryptor =
         aes::cbc_encryptor(aes::KeySize::KeySize256, &key, &iv, blockmodes::PkcsPadding);
 
@@ -29,7 +33,11 @@ pub fn encrypt_bytes(data: &[u8], key: [u8; 32], iv: [u8; 16]) -> Result<Vec<u8>
     Ok(final_result)
 }
 
-pub fn decrypt_bytes(encrypted_data: &[u8], key: [u8; 32], iv: [u8; 16]) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
+pub fn decrypt_bytes(
+    encrypted_data: &[u8],
+    key: [u8; 32],
+    iv: [u8; 16],
+) -> Result<Vec<u8>, symmetriccipher::SymmetricCipherError> {
     let mut decryptor =
         aes::cbc_decryptor(aes::KeySize::KeySize256, &key, &iv, blockmodes::PkcsPadding);
 
