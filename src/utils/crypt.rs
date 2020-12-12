@@ -17,7 +17,7 @@ pub fn encrypt_bytes(data: &[u8], key: [u8; 32], iv: [u8; 16]) -> Result<Vec<u8>
                 .take_read_buffer()
                 .take_remaining()
                 .iter()
-                .map(|&i| i),
+                .copied(),
         );
 
         match result {
@@ -45,7 +45,7 @@ pub fn decrypt_bytes(encrypted_data: &[u8], key: [u8; 32], iv: [u8; 16]) -> Resu
                 .take_read_buffer()
                 .take_remaining()
                 .iter()
-                .map(|&i| i),
+                .copied(),
         );
 
         match result {

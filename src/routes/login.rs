@@ -101,7 +101,7 @@ pub async fn get_token(id: Identity, redis: web::Data<ConnectionPool>, db: web::
                     user.id, &user.email,
                     &hex::decode(&config.secret_key).unwrap(),
                     &hex::decode(&config.iv_key).unwrap(),
-                ).unwrap_or("null".to_string());
+                ).unwrap_or_else(|| "null".to_string());
 
                 sqlx::query!("INSERT INTO tokens (user_id, email, token) VALUES ($1, $2, $3)", user.id as i64, &user.email, &token)
                     .execute(db.as_ref())
