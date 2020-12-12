@@ -47,4 +47,4 @@ features = ["json"]
 [dependencies.sqlx]
 version = "0.4"
 default-features = false
-features = ["runtime-actix-rustls", "macros", "postgres", "chrono"]
+features = ["runtime-actix-rustls", "macros", "postgres", "chrono", "offline"]

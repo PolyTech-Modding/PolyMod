@@ -1,0 +1,44 @@
+{
+  "db": "PostgreSQL",
+  "18f35bd2b371b7fa0f38301c50aba938de2a5f9cd1f0b4baeaafdd6697456383": {
+    "query": "INSERT INTO tokens (user_id, email, token) VALUES ($1, $2, $3)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text",
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "35c6db06123c627fca13152fbd8ba08fec5300f2fa907f3699d1889a73be84d8": {
+    "query": "SELECT token, is_banned FROM tokens WHERE user_id = $1 AND email = $2",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "token",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 1,
+          "name": "is_banned",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  }
+}
