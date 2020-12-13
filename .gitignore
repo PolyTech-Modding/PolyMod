@@ -6,3 +6,4 @@ tmp*
 *.db
 data.json
 /files
+*.zip
