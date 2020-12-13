@@ -5,3 +5,4 @@ Makefile.toml
 tmp*
 *.db
 data.json
+/files

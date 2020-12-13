@@ -9,7 +9,7 @@ pub mod model;
 pub mod routes;
 pub mod utils;
 
-use crate::model::Config;
+use crate::model::*;
 use crate::routes::*;
 
 use std::env;
@@ -36,6 +36,13 @@ use tokio::prelude::*;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut file = File::open("Config.toml").await?;
     let mut content = String::new();
+
+    for i in HEX_BASE.iter() {
+        tokio::fs::create_dir_all(&format!("./files/{}", i)).await?;
+        for j in HEX_BASE.iter() {
+            tokio::fs::create_dir_all(&format!("./files/{}/{}{}", i, i, j)).await?;
+        }
+    }
 
     file.read_to_string(&mut content).await?;
 

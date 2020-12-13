@@ -1,6 +1,7 @@
 use serde_aux::prelude::*;
 
 pub const API_ENDPOINT: &str = "https://discord.com/api/v8";
+pub const HEX_BASE: [&str; 16] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OAuthTokenData {
