@@ -19,6 +19,7 @@ client_secret = ""
 redirect_uri = ""
 
 redis_uri = "127.0.0.1:6379"
+mods_path = "./tmp" # mkdir tmp
 
 [release]
 # same fields as debug

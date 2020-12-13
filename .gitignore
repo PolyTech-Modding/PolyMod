@@ -2,3 +2,6 @@
 Config.toml
 Makefile.toml
 .env
+tmp*
+*.db
+data.json

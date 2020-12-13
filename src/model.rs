@@ -37,13 +37,41 @@ pub struct UserResponse {
     pub email: String,
 }
 
+
+fn default_address() -> String {
+    "127.0.0.1".to_string()
+}
+fn default_port() -> u16 {
+    8000
+}
+fn default_workers() -> usize {
+    1
+}
+fn default_keep_alive() -> usize {
+    30
+}
+fn default_log() -> String {
+    "indo,sqlx=warn".to_string()
+}
+fn default_redis() -> String {
+    "127.0.0.1:6379".to_string()
+}
+fn default_path() -> String {
+    "./tmp".to_string()
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Config {
     // Web Server
+    #[serde(default = "default_address")]
     pub address: String,
+    #[serde(default = "default_port")]
     pub port: u16,
+    #[serde(default = "default_workers")]
     pub workers: usize,
+    #[serde(default = "default_keep_alive")]
     pub keep_alive: usize,
+    #[serde(default = "default_log")]
     pub log: String,
 
     // Private Cookies
@@ -57,5 +85,8 @@ pub struct Config {
     pub redirect_uri: String,
 
     // Other
+    #[serde(default = "default_redis")]
     pub redis_uri: String,
+    #[serde(default = "default_path")]
+    pub mods_path: String,
 }

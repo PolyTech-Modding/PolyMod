@@ -18,7 +18,9 @@ toml = "0.5"
 hex = "0.4"
 rust-crypto = "0.2"
 base64 = "0.13"
-actix-service = "1.0"
+actix-multipart = "0.3"
+futures = "0.3"
+sanitize-filename = "0.2"
 
 [dependencies.actix-web]
 version = "3"

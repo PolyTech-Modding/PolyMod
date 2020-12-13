@@ -39,40 +39,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     file.read_to_string(&mut content).await?;
 
-    let values = content.parse::<Value>().unwrap();
+    let values = content.parse::<Value>()?;
 
     let values = if cfg!(debug_assertions) {
-        values["debug"].as_table().unwrap()
+        Value::Table(values["debug"].as_table().cloned().unwrap())
     } else {
-        values["release"].as_table().unwrap()
+        Value::Table(values["release"].as_table().cloned().unwrap())
     };
 
-    let config = Config {
-        address: values["address"]
-            .as_str()
-            .unwrap_or("127.0.0.1")
-            .to_string(),
-        port: values["port"].as_integer().unwrap_or(8000) as u16,
-        workers: values["workers"].as_integer().unwrap_or(1) as usize,
-        keep_alive: values["keep_alive"].as_integer().unwrap_or(30) as usize,
-        log: values["log"]
-            .as_str()
-            .unwrap_or("actix_web=info")
-            .to_string(),
-
-        secret_key: values["secret_key"].as_str().unwrap().to_string(),
-        iv_key: values["iv_key"].as_str().unwrap().to_string(),
-
-        oauth2_url: values["oauth2_url"].as_str().unwrap().to_string(),
-        client_id: values["client_id"].as_integer().unwrap() as u64,
-        client_secret: values["client_secret"].as_str().unwrap().to_string(),
-        redirect_uri: values["redirect_uri"].as_str().unwrap().to_string(),
-
-        redis_uri: values["redis_uri"]
-            .as_str()
-            .unwrap_or("127.0.0.1:6379")
-            .to_string(),
-    };
+    let config = values.try_into::<Config>()?;
+    //    redis_uri: values["redis_uri"]
+    //        .as_str()
+    //        .unwrap_or("127.0.0.1:6379")
+    //        .to_string(),
+    //};
 
     std::env::set_var("RUST_LOG", &config.log);
     tracing_subscriber::fmt::init();
