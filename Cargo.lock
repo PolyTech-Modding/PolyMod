@@ -1924,6 +1924,7 @@ version = "0.0.3"
 dependencies = [
  "actix-identity",
  "actix-ratelimit",
+ "actix-service",
  "actix-web",
  "base64 0.13.0",
  "darkredis",

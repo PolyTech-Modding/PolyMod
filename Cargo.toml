@@ -18,6 +18,7 @@ toml = "0.5"
 hex = "0.4"
 rust-crypto = "0.2"
 base64 = "0.13"
+actix-service = "1.0"
 
 [dependencies.actix-web]
 version = "3"

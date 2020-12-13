@@ -16,11 +16,15 @@ use std::env;
 
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_ratelimit::{RateLimiter, RedisStore, RedisStoreActor};
-use actix_web::{middleware, web, App, HttpServer};
+use actix_web::dev::Service;
+use actix_web::{middleware, web, App, HttpServer, HttpResponse};
 
 use darkredis::ConnectionPool;
 use handlebars::Handlebars;
-use sqlx::postgres::PgPoolOptions;
+use sqlx::postgres::{
+    PgPoolOptions,
+    PgPool,
+};
 use time::Duration;
 use toml::Value;
 
@@ -73,22 +77,26 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     std::env::set_var("RUST_LOG", &config.log);
     tracing_subscriber::fmt::init();
 
+    let config_ref = web::Data::new(config.clone());
+
     // Handlebars for templating.
     let mut handlebars = Handlebars::new();
     handlebars.register_templates_directory(".html.hbs", "./templates")?;
     let handlebars_ref = web::Data::new(handlebars);
 
+    // Redis Cache
     let redis = ConnectionPool::create((&config.redis_uri).into(), None, 2).await?;
     let redis_ref = web::Data::new(redis);
+
+    // Redis Rate Limiter
     let store = RedisStore::connect(&format!("redis://{}", &config.redis_uri));
 
+    // Postgresql Database
     let db = PgPoolOptions::new()
         .max_connections(config.workers as u32)
         .connect(&env::var("DATABASE_URL")?)
         .await?;
-    let db_ref = web::Data::new(db);
-
-    let config_ref = web::Data::new(config.clone());
+    let db_ref = web::Data::new(db.clone());
 
     let secret_key = config.secret_key.clone();
 
@@ -134,6 +142,44 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .service(web::resource("/logout").to(login::logout))
             .service(web::resource("/token").route(web::get().to(login::get_token)))
             .service(web::resource("/discord/oauth2").route(web::get().to(login::oauth)))
+            .service(
+                web::scope("/api")
+                    .wrap_fn(|req, srv| {
+                        let db = req.app_data::<web::Data<PgPool>>().cloned().unwrap();
+                        let token = match &req.headers().get("Authorization") {
+                            Some(x) => x.to_str().unwrap().to_string(),
+                            None => String::new(),
+                        };
+
+                        let fut = srv.call(req);
+
+                        async move {
+                            if token.is_empty() {
+                                return Err(HttpResponse::Unauthorized().body("Unauthorized: No Authorization Token provided").into());
+                            }
+
+                            let query = sqlx::query!(
+                                "SELECT is_banned FROM tokens WHERE token = $1",
+                                &token,
+                            )
+                            .fetch_optional(&**db.clone())
+                            .await
+                            .unwrap();
+
+                            if let Some(data) = query {
+                                if data.is_banned {
+                                    Err(HttpResponse::Unauthorized().body("Unauthorized: Banned User").into())
+                                } else {
+                                    let res = fut.await?;
+                                    Ok(res)
+                                }
+                            } else {
+                                Err(HttpResponse::Unauthorized().body("Unauthorized: Invalid Token").into())
+                            }
+                        }
+                    })
+                    .service(web::resource("/upload").route(web::post().to(mod_upload::upload)))
+            )
     })
     .bind(&format!("{}:{}", &config.address, &config.port))?
     .workers(config.workers)
