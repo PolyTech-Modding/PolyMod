@@ -14,6 +14,76 @@
       "nullable": []
     }
   },
+  "1c95340dff9211e1f27d27d48ad44dd2c1580ab4f63bd9bd839bf8e700830e05": {
+    "query": "INSERT INTO mods\n        (name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, categories, build_script, dependencies_checksums, metadata)\n        VALUES\n        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::categories[], $13, $14, $15)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          {
+            "Custom": {
+              "name": "_categories",
+              "kind": {
+                "Array": {
+                  "Custom": {
+                    "name": "categories",
+                    "kind": {
+                      "Enum": [
+                        "API",
+                        "Editor",
+                        "Cheat",
+                        "Models",
+                        "Utilities",
+                        "Physics",
+                        "Fun",
+                        "Cosmetic"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "Text",
+          "VarcharArray",
+          "TextArray"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "2a5566816a557082081e34b5bcc05f7e9af90ac113abd08f5d0a3828d89ce747": {
+    "query": "SELECT checksum FROM mods WHERE name = $1 AND version = $2",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "checksum",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "35c6db06123c627fca13152fbd8ba08fec5300f2fa907f3699d1889a73be84d8": {
     "query": "SELECT token, is_banned FROM tokens WHERE user_id = $1 AND email = $2",
     "describe": {
@@ -39,6 +109,126 @@
         false,
         false
       ]
+    }
+  },
+  "8091e2d170ce9ff8e4799b74753c3501cff07227fc7039208618c2c1b6a762f1": {
+    "query": "INSERT INTO mods\n        (name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, build_script, dependencies_checksums, metadata, checksum)\n        VALUES\n        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Text",
+          "VarcharArray",
+          "TextArray",
+          "Varchar"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "868079805a701ebe67c4df62ae3bf7cf48a753a5b7d70c4a5f66eb6a730eb869": {
+    "query": "SELECT is_banned FROM tokens WHERE token = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "is_banned",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "c4b859b299d65531685df442705f39a94078f8481cd2c560ce9119c4a988988f": {
+    "query": "INSERT INTO mods\n        (name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, build_script, dependencies_checksums, metadata)\n        VALUES\n        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Text",
+          "VarcharArray",
+          "TextArray"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "ffd5d329757d6fab4aa2b86e19d85a75af3994b9a2e6c7d5b8b0c63920773ebc": {
+    "query": "INSERT INTO mods\n        (name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, categories, build_script, dependencies_checksums, metadata)\n        VALUES\n        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          {
+            "Custom": {
+              "name": "_categories",
+              "kind": {
+                "Array": {
+                  "Custom": {
+                    "name": "categories",
+                    "kind": {
+                      "Enum": [
+                        "API",
+                        "Editor",
+                        "Cheat",
+                        "Models",
+                        "Utilities",
+                        "Physics",
+                        "Fun",
+                        "Cosmetic"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "Text",
+          "VarcharArray",
+          "TextArray"
+        ]
+      },
+      "nullable": []
     }
   }
 }
