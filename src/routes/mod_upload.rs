@@ -102,6 +102,7 @@ pub async fn upload(
     let mut checksum = String::with_capacity(64);
     let mut mod_checksum_path = String::with_capacity(81);
     let mut got_file = false;
+    let mut filepath = String::new();
 
     while let Ok(Some(mut field)) = payload.try_next().await {
         let content_type = field.content_disposition().unwrap();
@@ -116,14 +117,14 @@ pub async fn upload(
             if !got_file {
                 got_file = true;
             } else {
-                if let Err(why) = tokio::fs::remove_file(&filename).await {
+                if let Err(why) = tokio::fs::remove_file(&filepath).await {
                     error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &filename, why);
                 };
 
                 return Ok(HttpResponse::BadRequest().body("Cannot send more than 1 file to upload"));
             }
 
-            let filepath = format!("{}/{}", config.mods_path, sanitize_filename::sanitize(&filename));
+            filepath = format!("{}/{}", config.mods_path, sanitize_filename::sanitize(&filename));
 
             {
                 let mut f = File::create(&filepath).await?;
@@ -154,15 +155,13 @@ pub async fn upload(
             };
 
             mod_checksum_path = format!("./files/{}/{}/{}.zip", first, second, checksum);
-
-            tokio::fs::rename(&filepath, &mod_checksum_path).await?;
         }
     }
 
     dbg!(&contents);
 
     if contents.is_empty() {
-        if let Err(why) = tokio::fs::remove_file(&mod_checksum_path).await {
+        if let Err(why) = tokio::fs::remove_file(&filepath).await {
             error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
         };
 
@@ -176,7 +175,7 @@ pub async fn upload(
     let data: ModJsonData = match serde_json::from_str(&contents) {
         Ok(x) => x,
         Err(why) => {
-            if let Err(why) = tokio::fs::remove_file(&mod_checksum_path).await {
+            if let Err(why) = tokio::fs::remove_file(&filepath).await {
                 error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
             };
 
@@ -198,7 +197,7 @@ pub async fn upload(
     }).collect::<Vec<_>>().await;
 
     if data.dependencies.len() != dependencies_data.len() {
-        if let Err(why) = tokio::fs::remove_file(&mod_checksum_path).await {
+        if let Err(why) = tokio::fs::remove_file(&filepath).await {
             error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
         };
 
@@ -206,7 +205,7 @@ pub async fn upload(
     }
 
     if let Err(why) = Version::parse(&data.version) {
-        if let Err(why) = tokio::fs::remove_file(&mod_checksum_path).await {
+        if let Err(why) = tokio::fs::remove_file(&filepath).await {
             error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
         };
 
@@ -271,12 +270,14 @@ pub async fn upload(
         .await;
 
     if let Err(why) = query {
-        if let Err(why) = tokio::fs::remove_file(&mod_checksum_path).await {
+        if let Err(why) = tokio::fs::remove_file(&filepath).await {
             error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
         };
 
         return Ok(HttpResponse::InternalServerError().body(&format!("Database error: {}", why)));
     }
+
+    tokio::fs::rename(&filepath, &mod_checksum_path).await?;
 
     Ok("ok".into())
 }
