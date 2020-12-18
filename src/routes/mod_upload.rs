@@ -8,6 +8,7 @@ use crypto::{digest::Digest, sha2::Sha256};
 use tokio::fs::File;
 use tokio::prelude::*;
 use sqlx::PgPool;
+use semver::Version;
 //use sqlx::postgres::{Postgres, PgTypeInfo, PgArgumentBuffer};
 //use sqlx::types::Type;
 
@@ -202,6 +203,14 @@ pub async fn upload(
         };
 
         return Ok(HttpResponse::BadRequest().body("At least one of the depencencies is missing or invalid."));
+    }
+
+    if let Err(why) = Version::parse(&data.version) {
+        if let Err(why) = tokio::fs::remove_file(&mod_checksum_path).await {
+            error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
+        };
+
+        return Ok(HttpResponse::BadRequest().body(&format!("The version is not a valid semver: {}", why)));
     }
 
     let dependencies_checksums = dependencies_data
