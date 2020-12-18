@@ -4,7 +4,7 @@ use actix_web::{web, HttpResponse, Result};
 use actix_multipart::Multipart;
 
 use futures::stream::{self, StreamExt, TryStreamExt};
-use crypto::{digest::Digest, sha2::Sha256};
+use sha2::{Digest, Sha256};
 use tokio::fs::File;
 use tokio::prelude::*;
 use sqlx::PgPool;
@@ -137,15 +137,26 @@ pub async fn upload(
             }
 
             checksum = {
-                let mut buffer = Vec::new();
-                let mut f = File::open(&filepath).await?;
+                let mut sh = Sha256::default();
 
-                f.read(&mut buffer).await?;
+                let mut file = File::open(&filepath).await?;
+                let mut buffer = [0u8; 1024];
 
-                let mut hasher = Sha256::new();
-                hasher.input(&buffer);
-                hasher.result_str()
+                loop {
+                    let n = file.read(&mut buffer).await?;
+
+                    sh.update(&buffer[..n]);
+                    if n == 0 || n < 1024 {
+                        break;
+                    }
+                }
+
+                sh.finalize().iter().map(|byte| {
+                    format!("{:02x}", byte)
+                }).collect::<String>()
             };
+
+            warn!("{}", &checksum);
 
             let first = checksum.chars().next().unwrap();
             let second = {
@@ -159,6 +170,7 @@ pub async fn upload(
     }
 
     dbg!(&contents);
+    dbg!(&checksum);
 
     if contents.is_empty() {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {

@@ -23,6 +23,7 @@ futures = "0.3"
 sanitize-filename = "0.2"
 semver = "0.11"
 actix-files = "0.4"
+sha2 = "0.9"
 
 [dependencies.actix-web]
 version = "3"
@@ -53,3 +54,6 @@ features = ["json"]
 version = "0.4"
 default-features = false
 features = ["runtime-actix-rustls", "macros", "postgres", "chrono", "offline"]
+#
+#[profile.dev]
+#panic = "abort"
