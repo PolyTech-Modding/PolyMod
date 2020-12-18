@@ -55,11 +55,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     };
 
     let config = values.try_into::<Config>()?;
-    //    redis_uri: values["redis_uri"]
-    //        .as_str()
-    //        .unwrap_or("127.0.0.1:6379")
-    //        .to_string(),
-    //};
 
     std::env::set_var("RUST_LOG", &config.log);
     tracing_subscriber::fmt::init();
