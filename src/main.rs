@@ -125,6 +125,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .service(web::resource("/token").route(web::get().to(login::get_token)))
             .service(web::resource("/discord/oauth2").route(web::get().to(login::oauth)))
             .service(
+                web::scope("/public_api")
+                    .service(web::resource("/download/{checksum}").route(web::get().to(download::download)))
+            )
+            .service(
                 web::scope("/api")
                     .wrap_fn(|req, srv| {
                         let db = req.app_data::<web::Data<PgPool>>().cloned().unwrap();
