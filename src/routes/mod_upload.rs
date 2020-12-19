@@ -286,7 +286,7 @@ pub async fn upload(
             error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
         };
 
-        return Ok(HttpResponse::InternalServerError().body(&format!("Database error: {}", why)));
+        return Ok(HttpResponse::BadRequest().body(&format!("Database error: {}", why)));
     }
 
     tokio::fs::rename(&filepath, &mod_checksum_path).await?;
