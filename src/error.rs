@@ -13,13 +13,14 @@ pub enum ServiceError {
     Unauthorized,
 }
 
+impl Error for ServiceError {}
+
 impl Display for ServiceError {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         write!(f, "{:?}", self)
     }
 }
 
-impl Error for ServiceError {}
 
 impl ResponseError for ServiceError {
     fn error_response(&self) -> HttpResponse {

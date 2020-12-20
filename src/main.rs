@@ -1,3 +1,5 @@
+#![feature(map_first_last)]
+
 #[macro_use]
 extern crate serde;
 
@@ -127,6 +129,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .service(
                 web::scope("/public_api")
                     .service(web::resource("/download/{checksum}").route(web::get().to(download::download)))
+                    .service(web::resource("/get_mod").route(web::get().to(search::get_mod)))
             )
             .service(
                 web::scope("/api")

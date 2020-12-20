@@ -1,6 +1,7 @@
 use crate::model::Config;
+use crate::error::ServiceResult;
 
-use actix_web::{web, HttpResponse, Result};
+use actix_web::{web, HttpResponse};
 use actix_multipart::Multipart;
 
 use futures::stream::{self, StreamExt, TryStreamExt};
@@ -95,7 +96,7 @@ pub async fn upload(
     config: web::Data<Config>,
     db: web::Data<PgPool>,
     mut payload: Multipart
-) -> Result<HttpResponse> {
+) -> ServiceResult<HttpResponse> {
     let db = &**db.clone();
 
     let mut contents = String::new();

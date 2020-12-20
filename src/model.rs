@@ -1,7 +1,37 @@
+use std::fmt;
 use serde_aux::prelude::*;
 
 pub const API_ENDPOINT: &str = "https://discord.com/api/v8";
 pub const HEX_BASE: [&str; 16] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, PartialOrd, sqlx::Type)]
+pub enum Verification {
+    None,
+    Unsafe,
+    Auto,
+    Manual,
+    Core,
+}
+
+impl Verification {
+    pub fn lowest() -> Self { Verification::None }
+}
+
+impl Default for Verification {
+    fn default() -> Self { Self::None }
+}
+
+impl fmt::Display for Verification {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Self::None => write!(f, "None"),
+            Self::Unsafe => write!(f, "Unsafe"),
+            Self::Auto => write!(f, "Auto"),
+            Self::Manual => write!(f, "Manual"),
+            Self::Core => write!(f, "Core"),
+        }
+    }
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct OAuthTokenData {
