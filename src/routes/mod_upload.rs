@@ -1,15 +1,15 @@
-use crate::model::Config;
 use crate::error::ServiceResult;
+use crate::model::Config;
 
-use actix_web::{web, HttpResponse};
 use actix_multipart::Multipart;
+use actix_web::{web, HttpResponse};
 
 use futures::stream::{self, StreamExt, TryStreamExt};
+use semver::Version;
 use sha2::{Digest, Sha256};
+use sqlx::PgPool;
 use tokio::fs::File;
 use tokio::prelude::*;
-use sqlx::PgPool;
-use semver::Version;
 //use sqlx::postgres::{Postgres, PgTypeInfo, PgArgumentBuffer};
 //use sqlx::types::Type;
 
@@ -74,9 +74,9 @@ pub struct ModJsonData {
     #[serde(default)]
     authors: Vec<String>,
     documentation: Option<String>, // URL
-    readme: Option<String>, // the readme contents
-    homepage: Option<String>, // URL
-    license: Option<String>, // OSI Licence or text for license-file
+    readme: Option<String>,        // the readme contents
+    homepage: Option<String>,      // URL
+    license: Option<String>,       // OSI Licence or text for license-file
     #[serde(default)]
     keywords: Vec<String>,
     #[serde(default)]
@@ -95,7 +95,7 @@ pub struct ModJsonData {
 pub async fn upload(
     config: web::Data<Config>,
     db: web::Data<PgPool>,
-    mut payload: Multipart
+    mut payload: Multipart,
 ) -> ServiceResult<HttpResponse> {
     let db = &**db.clone();
 
@@ -119,13 +119,22 @@ pub async fn upload(
                 got_file = true;
             } else {
                 if let Err(why) = tokio::fs::remove_file(&filepath).await {
-                    error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &filename, why);
+                    error!(
+                        "Could not delete file `{}` due to a failed upload.\n{:#?}",
+                        &filename, why
+                    );
                 };
 
-                return Ok(HttpResponse::BadRequest().body("Cannot send more than 1 file to upload"));
+                return Ok(
+                    HttpResponse::BadRequest().body("Cannot send more than 1 file to upload")
+                );
             }
 
-            filepath = format!("{}/{}", config.mods_path, sanitize_filename::sanitize(&filename));
+            filepath = format!(
+                "{}/{}",
+                config.mods_path,
+                sanitize_filename::sanitize(&filename)
+            );
 
             {
                 let mut f = File::create(&filepath).await?;
@@ -152,9 +161,10 @@ pub async fn upload(
                     }
                 }
 
-                sh.finalize().iter().map(|byte| {
-                    format!("{:02x}", byte)
-                }).collect::<String>()
+                sh.finalize()
+                    .iter()
+                    .map(|byte| format!("{:02x}", byte))
+                    .collect::<String>()
             };
 
             warn!("{}", &checksum);
@@ -175,7 +185,10 @@ pub async fn upload(
 
     if contents.is_empty() {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {
-            error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
+            error!(
+                "Could not delete file `{}` due to a failed upload.\n{:#?}",
+                &mod_checksum_path, why
+            );
         };
 
         return Ok(HttpResponse::BadRequest().body("Missing `data.json` file"));
@@ -189,40 +202,56 @@ pub async fn upload(
         Ok(x) => x,
         Err(why) => {
             if let Err(why) = tokio::fs::remove_file(&filepath).await {
-                error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
+                error!(
+                    "Could not delete file `{}` due to a failed upload.\n{:#?}",
+                    &mod_checksum_path, why
+                );
             };
 
-            return Ok(HttpResponse::BadRequest().body(&format!("Invalid format found on the data json: {}", why)));
+            return Ok(HttpResponse::BadRequest()
+                .body(&format!("Invalid format found on the data json: {}", why)));
         }
     };
 
     let stream = stream::iter(data.dependencies.iter());
-    
-    let dependencies_data = stream.filter_map(|i| async move {
-        sqlx::query!(
-            "SELECT checksum FROM mods WHERE name = $1 AND version = $2",
-            i.name,
-            i.version,
-        )
-        .fetch_optional(db)
-        .await
-        .unwrap()
-    }).collect::<Vec<_>>().await;
+
+    let dependencies_data = stream
+        .filter_map(|i| async move {
+            sqlx::query!(
+                "SELECT checksum FROM mods WHERE name = $1 AND version = $2",
+                i.name,
+                i.version,
+            )
+            .fetch_optional(db)
+            .await
+            .unwrap()
+        })
+        .collect::<Vec<_>>()
+        .await;
 
     if data.dependencies.len() != dependencies_data.len() {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {
-            error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
+            error!(
+                "Could not delete file `{}` due to a failed upload.\n{:#?}",
+                &mod_checksum_path, why
+            );
         };
 
-        return Ok(HttpResponse::BadRequest().body("At least one of the depencencies is missing or invalid."));
+        return Ok(HttpResponse::BadRequest()
+            .body("At least one of the depencencies is missing or invalid."));
     }
 
     if let Err(why) = Version::parse(&data.version) {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {
-            error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
+            error!(
+                "Could not delete file `{}` due to a failed upload.\n{:#?}",
+                &mod_checksum_path, why
+            );
         };
 
-        return Ok(HttpResponse::BadRequest().body(&format!("The version is not a valid semver: {}", why)));
+        return Ok(
+            HttpResponse::BadRequest().body(&format!("The version is not a valid semver: {}", why))
+        );
     }
 
     let dependencies_checksums = dependencies_data
@@ -284,7 +313,10 @@ pub async fn upload(
 
     if let Err(why) = query {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {
-            error!("Could not delete file `{}` due to a failed upload.\n{:#?}", &mod_checksum_path, why);
+            error!(
+                "Could not delete file `{}` due to a failed upload.\n{:#?}",
+                &mod_checksum_path, why
+            );
         };
 
         return Ok(HttpResponse::BadRequest().body(&format!("Database error: {}", why)));

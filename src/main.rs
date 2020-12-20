@@ -19,14 +19,11 @@ use std::env;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_ratelimit::{RateLimiter, RedisStore, RedisStoreActor};
 use actix_web::dev::Service;
-use actix_web::{middleware, web, App, HttpServer, HttpResponse};
+use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 
 use darkredis::ConnectionPool;
 use handlebars::Handlebars;
-use sqlx::postgres::{
-    PgPoolOptions,
-    PgPool,
-};
+use sqlx::postgres::{PgPool, PgPoolOptions};
 use time::Duration;
 use toml::Value;
 
@@ -128,8 +125,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .service(web::resource("/discord/oauth2").route(web::get().to(login::oauth)))
             .service(
                 web::scope("/public_api")
-                    .service(web::resource("/download/{checksum}").route(web::get().to(download::download)))
-                    .service(web::resource("/get_mod").route(web::get().to(search::get_mod)))
+                    .service(
+                        web::resource("/download/{checksum}")
+                            .route(web::get().to(download::download)),
+                    )
+                    .service(web::resource("/get_mod").route(web::get().to(search::get_mod))),
             )
             .service(
                 web::scope("/api")
@@ -144,7 +144,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                         async move {
                             if token.is_empty() {
-                                return Err(HttpResponse::Unauthorized().body("Unauthorized: No Authorization Token provided").into());
+                                return Err(HttpResponse::Unauthorized()
+                                    .body("Unauthorized: No Authorization Token provided")
+                                    .into());
                             }
 
                             let query = sqlx::query!(
@@ -157,17 +159,21 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                             if let Some(data) = query {
                                 if data.is_banned {
-                                    Err(HttpResponse::Unauthorized().body("Unauthorized: Banned User").into())
+                                    Err(HttpResponse::Unauthorized()
+                                        .body("Unauthorized: Banned User")
+                                        .into())
                                 } else {
                                     let res = fut.await?;
                                     Ok(res)
                                 }
                             } else {
-                                Err(HttpResponse::Unauthorized().body("Unauthorized: Invalid Token").into())
+                                Err(HttpResponse::Unauthorized()
+                                    .body("Unauthorized: Invalid Token")
+                                    .into())
                             }
                         }
                     })
-                    .service(web::resource("/upload").route(web::post().to(mod_upload::upload)))
+                    .service(web::resource("/upload").route(web::post().to(mod_upload::upload))),
             )
     })
     .bind(&format!("{}:{}", &config.address, &config.port))?

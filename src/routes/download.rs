@@ -1,5 +1,5 @@
-use actix_web::web;
 use actix_files::NamedFile;
+use actix_web::web;
 
 pub async fn download(checksum: web::Path<String>) -> std::io::Result<NamedFile> {
     let first = checksum.chars().next().unwrap();

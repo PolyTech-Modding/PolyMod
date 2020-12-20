@@ -1,8 +1,10 @@
-use std::fmt;
 use serde_aux::prelude::*;
+use std::fmt;
 
 pub const API_ENDPOINT: &str = "https://discord.com/api/v8";
-pub const HEX_BASE: [&str; 16] = ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f"];
+pub const HEX_BASE: [&str; 16] = [
+    "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f",
+];
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, PartialOrd, sqlx::Type)]
 pub enum Verification {
@@ -14,11 +16,15 @@ pub enum Verification {
 }
 
 impl Verification {
-    pub fn lowest() -> Self { Verification::None }
+    pub fn lowest() -> Self {
+        Verification::None
+    }
 }
 
 impl Default for Verification {
-    fn default() -> Self { Self::None }
+    fn default() -> Self {
+        Self::None
+    }
 }
 
 impl fmt::Display for Verification {
@@ -67,7 +73,6 @@ pub struct UserResponse {
     pub premium_type: Option<u64>,
     pub email: String,
 }
-
 
 fn default_address() -> String {
     "127.0.0.1".to_string()

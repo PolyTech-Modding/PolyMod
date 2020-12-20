@@ -1,10 +1,10 @@
-use crate::model::Verification;
 use crate::error::ServiceResult;
-use std::collections::BTreeMap;
+use crate::model::Verification;
 use actix_web::{web, HttpResponse};
-use semver::{VersionReq, Version};
 use futures::StreamExt;
+use semver::{Version, VersionReq};
 use sqlx::PgPool;
+use std::collections::BTreeMap;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct QueryModInfo {
@@ -40,7 +40,10 @@ pub struct GetModsResponse {
     metadata: Option<Vec<String>>,
 }
 
-pub async fn get_mod(data: web::Query<QueryModInfo>, db: web::Data<PgPool>) -> ServiceResult<HttpResponse> {
+pub async fn get_mod(
+    data: web::Query<QueryModInfo>,
+    db: web::Data<PgPool>,
+) -> ServiceResult<HttpResponse> {
     let pool = db.as_ref();
     let mut mods = BTreeMap::new();
 
@@ -49,15 +52,17 @@ pub async fn get_mod(data: web::Query<QueryModInfo>, db: web::Data<PgPool>) -> S
         .boxed();
 
     while let Some(Ok(values)) = query.next().await {
-
         if data.verification > values.verification.clone().unwrap_or_default() {
-            continue
+            continue;
         }
 
         if let Some(ref version) = data.version {
             let v_user = match VersionReq::parse(&version) {
                 Ok(x) => x,
-                Err(why) => return Ok(HttpResponse::BadRequest().json(&format!("Invalid semver provided: {}", why)))
+                Err(why) => {
+                    return Ok(HttpResponse::BadRequest()
+                        .json(&format!("Invalid semver provided: {}", why)))
+                }
             };
             let v_db = Version::parse(&values.version).unwrap();
 
@@ -73,7 +78,48 @@ pub async fn get_mod(data: web::Query<QueryModInfo>, db: web::Data<PgPool>) -> S
 
                 files.push(format!("/public_api/download/{}", values.checksum));
 
-                mods.insert(v_db, GetModsResponse {
+                mods.insert(
+                    v_db,
+                    GetModsResponse {
+                        name: values.name,
+                        version: values.version,
+                        description: values.description,
+
+                        verification: values.verification.unwrap_or_default(),
+                        files,
+                        downloads: values.downloads as usize,
+                        uploaded: values.uploaded.to_rfc3339(),
+
+                        repository_git: values.repository_git,
+                        repository_hg: values.repository_hg,
+
+                        authors: values.authors,
+                        documentation: values.documentation,
+                        readme: values.readme,
+                        homepage: values.homepage,
+                        license: values.license,
+                        keywords: values.keywords,
+                        build_script: values.build_script,
+                        metadata: values.metadata,
+                    },
+                );
+            }
+        } else {
+            let v_db = Version::parse(&values.version).unwrap();
+            let native_lib_checksums = values.native_lib_checksums.unwrap_or_default();
+            let dependencies_checksums = values.dependencies_checksums.unwrap_or_default();
+
+            let mut files = native_lib_checksums
+                .iter()
+                .chain(dependencies_checksums.iter())
+                .map(|i| format!("/public_api/download/{}", i))
+                .collect::<Vec<String>>();
+
+            files.push(format!("/public_api/download/{}", values.checksum));
+
+            mods.insert(
+                v_db,
+                GetModsResponse {
                     name: values.name,
                     version: values.version,
                     description: values.description,
@@ -94,48 +140,13 @@ pub async fn get_mod(data: web::Query<QueryModInfo>, db: web::Data<PgPool>) -> S
                     keywords: values.keywords,
                     build_script: values.build_script,
                     metadata: values.metadata,
-                });
-            }
-        }  else {
-            let v_db = Version::parse(&values.version).unwrap();
-            let native_lib_checksums = values.native_lib_checksums.unwrap_or_default();
-            let dependencies_checksums = values.dependencies_checksums.unwrap_or_default();
-
-            let mut files = native_lib_checksums
-                .iter()
-                .chain(dependencies_checksums.iter())
-                .map(|i| format!("/public_api/download/{}", i))
-                .collect::<Vec<String>>();
-
-            files.push(format!("/public_api/download/{}", values.checksum));
-
-            mods.insert(v_db, GetModsResponse {
-                name: values.name,
-                version: values.version,
-                description: values.description,
-
-                verification: values.verification.unwrap_or_default(),
-                files,
-                downloads: values.downloads as usize,
-                uploaded: values.uploaded.to_rfc3339(),
-
-                repository_git: values.repository_git,
-                repository_hg: values.repository_hg,
-
-                authors: values.authors,
-                documentation: values.documentation,
-                readme: values.readme,
-                homepage: values.homepage,
-                license: values.license,
-                keywords: values.keywords,
-                build_script: values.build_script,
-                metadata: values.metadata,
-            });
+                },
+            );
         }
     }
 
     match mods.last_key_value() {
         Some(x) => Ok(HttpResponse::Ok().json(x.1)),
-        None => Ok(HttpResponse::NoContent().finish())
+        None => Ok(HttpResponse::NoContent().finish()),
     }
 }

@@ -1,5 +1,5 @@
-use std::error::Error;
 use std::convert::From;
+use std::error::Error;
 use std::fmt::{Display, Formatter};
 
 use actix_web::{error::ResponseError, HttpResponse};
@@ -21,12 +21,13 @@ impl Display for ServiceError {
     }
 }
 
-
 impl ResponseError for ServiceError {
     fn error_response(&self) -> HttpResponse {
         match self {
             ServiceError::BadRequest(ref message) => HttpResponse::BadRequest().body(message),
-            ServiceError::InternalServerError(ref message) => HttpResponse::InternalServerError().body(message),
+            ServiceError::InternalServerError(ref message) => {
+                HttpResponse::InternalServerError().body(message)
+            }
             ServiceError::Unauthorized => HttpResponse::Unauthorized().body("Unauthorized"),
         }
     }
