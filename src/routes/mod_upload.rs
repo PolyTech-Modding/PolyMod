@@ -92,6 +92,7 @@ pub struct ModJsonData {
 }
 
 /// curl -X POST http://localhost:8000/api/upload -i -H 'Authorization: asdasdasd' --form "mod=@mod.zip" --form "data=@data.json"
+/// TODO: Check for the owner of the mod before submitting.
 pub async fn upload(
     config: web::Data<Config>,
     db: web::Data<PgPool>,
