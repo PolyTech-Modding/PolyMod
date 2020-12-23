@@ -38,3 +38,31 @@ impl From<std::io::Error> for ServiceError {
         ServiceError::InternalServerError(format!("IO Error Happened: {}", err))
     }
 }
+
+impl From<sqlx::Error> for ServiceError {
+    fn from(err: sqlx::Error) -> ServiceError {
+        use sqlx::Error as E;
+
+        match err {
+            E::Database(why) => Self::BadRequest(why.to_string()),
+            E::Decode(why) => Self::InternalServerError(format!("Error occurred while decoding a value: {}", why)),
+            E::PoolTimedOut => {
+                error!("Database Pool Timed Out");
+                Self::InternalServerError("A handled database error has happened".into())
+            }
+            E::PoolClosed => {
+                error!("Database Pool Closed");
+                Self::InternalServerError("A handled database error has happened".into())
+            }
+            E::WorkerCrashed => {
+                error!("Database Worker Crashed");
+                Self::InternalServerError("A handled database error has happened".into())
+            }
+
+            _ => {
+                error!("{:#?}", err);
+                Self::InternalServerError("Unhandled database error".into())
+            }
+        }
+    }
+}
