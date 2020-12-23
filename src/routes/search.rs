@@ -26,17 +26,28 @@ pub struct GetModsResponse {
     downloads: usize,
     uploaded: String,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     repository_git: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     repository_hg: Option<String>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
     authors: Option<Vec<String>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     documentation: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     readme: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     homepage: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     license: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     keywords: Option<Vec<String>>,
-    // categories,
+    //#[serde(skip_serializing_if = "Option::is_none")]
+    //categories: Option<Vec<Categories>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     build_script: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     metadata: Option<Vec<String>>,
 }
 
