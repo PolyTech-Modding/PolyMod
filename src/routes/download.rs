@@ -1,7 +1,14 @@
+use crate::error::ServiceResult;
 use actix_files::NamedFile;
 use actix_web::web;
+use sqlx::PgPool;
 
-pub async fn download(checksum: web::Path<String>) -> std::io::Result<NamedFile> {
+pub async fn download(checksum: web::Path<String>, db: web::Data<PgPool>) -> ServiceResult<NamedFile> {
+    sqlx::query!("UPDATE mods SET downloads = downloads + 1 WHERE checksum = $1", &*checksum)
+        .execute(&**db)
+        .await?;
+
+
     let first = checksum.chars().next().unwrap();
     let second = {
         let mut x = first.to_string();
@@ -11,5 +18,5 @@ pub async fn download(checksum: web::Path<String>) -> std::io::Result<NamedFile>
 
     let mod_checksum_path = format!("./files/{}/{}/{}.zip", first, second, checksum);
 
-    NamedFile::open(&mod_checksum_path)
+    Ok(NamedFile::open(&mod_checksum_path)?)
 }
