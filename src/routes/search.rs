@@ -3,11 +3,11 @@ use crate::model::Verification;
 use actix_web::{web, HttpResponse};
 use futures::StreamExt;
 use semver::{Version, VersionReq};
-use sqlx::PgPool;
 use sqlx::types::chrono::{DateTime, Utc};
-use strsim::normalized_levenshtein;
+use sqlx::PgPool;
 use std::collections::BTreeMap;
 use std::fmt::{self, Display};
+use strsim::normalized_levenshtein;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct QueryModInfo {
@@ -61,7 +61,8 @@ pub async fn get_mod(
     let pool = db.as_ref();
     let mut mods = BTreeMap::new();
 
-    let mut query = sqlx::query!(r#"
+    let mut query = sqlx::query!(
+        r#"
         SELECT
             checksum,
             name,
@@ -86,9 +87,11 @@ pub async fn get_mod(
             mods
         WHERE
             name = $1
-        "#, &data.name)
-        .fetch(pool)
-        .boxed();
+        "#,
+        &data.name
+    )
+    .fetch(pool)
+    .boxed();
 
     while let Some(Ok(values)) = query.next().await {
         if data.verification > values.verification.clone().unwrap_or_default() {
@@ -199,7 +202,7 @@ struct QueryData {
     keywords: Option<Vec<String>>,
     verification: Option<Verification>,
     downloads: i64,
-    uploaded: DateTime<Utc>
+    uploaded: DateTime<Utc>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -233,15 +236,19 @@ pub struct SearchInfo {
     per_page: u8,
     #[serde(default = "Verification::lowest")]
     verification: Verification,
-    
+
     #[serde(skip_serializing_if = "Option::is_none")]
     before: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     after: Option<String>,
 }
 
-pub fn one() -> u8 { 1 }
-pub fn thirty() -> u8 { 30 }
+pub fn one() -> u8 {
+    1
+}
+pub fn thirty() -> u8 {
+    30
+}
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 #[serde(rename_all = "lowercase")]
@@ -263,17 +270,16 @@ impl Default for SortBy {
     }
 }
 
-
 pub async fn search(
     data: web::Query<SearchInfo>,
     db: web::Data<PgPool>,
 ) -> ServiceResult<HttpResponse> {
     if data.names_only && data.keywords_only {
-        return Ok(HttpResponse::NoContent().finish())
+        return Ok(HttpResponse::NoContent().finish());
     }
 
     if data.query.len() > 64 {
-        return Ok(HttpResponse::BadRequest().json("Max query length exceeded (64)"))
+        return Ok(HttpResponse::BadRequest().json("Max query length exceeded (64)"));
     }
 
     let pool = db.as_ref();
@@ -315,24 +321,24 @@ pub async fn search(
                 END
                 DESC
         "#,
-            &data.sort_by.to_string(),
-            {
-                if data.reverse {
-                    "asc"
-                } else {
-                    "desc"
-                }
-            },
-        )
-            .fetch(pool)
-            .boxed();
+        &data.sort_by.to_string(),
+        {
+            if data.reverse {
+                "asc"
+            } else {
+                "desc"
+            }
+        },
+    )
+    .fetch(pool)
+    .boxed();
 
-    let mut cont = if data.after.is_some() { false } else { true };
+    let mut cont = !data.after.is_some();
 
     while let Some(Ok(values)) = query.next().await {
         if let Some(before) = data.before.clone() {
             if values.checksum == before {
-                break
+                break;
             }
         }
 
@@ -344,7 +350,7 @@ pub async fn search(
 
         if cont {
             if values.verification.clone().unwrap_or_default() < data.verification {
-                continue
+                continue;
             }
 
             let valid: bool = if data.query.is_empty() {
@@ -354,56 +360,59 @@ pub async fn search(
                 let data_c = data.clone();
 
                 web::block(move || {
-                    if false { return Err(()) }
+                    if false {
+                        return Err(());
+                    }
 
-                    let query = data_c.query.split(" ");
+                    let query = data_c.query.split(' ');
 
                     for i in query {
                         if !data_c.names_only {
                             if !data_c.keywords_only {
-                                for j in values_c.description.split(" ") {
+                                for j in values_c.description.split(' ') {
                                     if normalized_levenshtein(&i, &j) > 0.9 || j.contains(&i) {
-                                        return Ok(true)
+                                        return Ok(true);
                                     }
                                 }
                             }
 
                             for j in values_c.keywords.clone().unwrap_or_default() {
                                 if normalized_levenshtein(&i, &j) > 0.9 || j.contains(&i) {
-                                    return Ok(true)
+                                    return Ok(true);
                                 }
                             }
                         }
 
-                        if !data_c.keywords_only {
-                            if normalized_levenshtein(&i, &values_c.name) > 0.9 || values_c.name.contains(&i) {
-                                return Ok(true)
-                            }
+                        if !data_c.keywords_only
+                            && (normalized_levenshtein(&i, &values_c.name) > 0.9
+                                || values_c.name.contains(&i))
+                        {
+                            return Ok(true);
                         }
                     }
 
                     Ok(false)
-                }).await.unwrap_or_default()
+                })
+                .await
+                .unwrap_or_default()
             };
 
             if valid {
-                mods.push(
-                    SearchModsResponse {
-                        checksum: values.checksum.to_string(),
-                        name: values.name.to_string(),
-                        version: values.version.to_string(),
-                        description: values.description.to_string(),
-                        keywords: values.keywords.clone().unwrap_or_default(),
-                        verification: values.verification.clone().unwrap_or_default(),
-                        downloads: values.downloads,
-                        uploaded: values.uploaded.to_rfc3339(),
-                    }
-                );
+                mods.push(SearchModsResponse {
+                    checksum: values.checksum.to_string(),
+                    name: values.name.to_string(),
+                    version: values.version.to_string(),
+                    description: values.description.to_string(),
+                    keywords: values.keywords.clone().unwrap_or_default(),
+                    verification: values.verification.clone().unwrap_or_default(),
+                    downloads: values.downloads,
+                    uploaded: values.uploaded.to_rfc3339(),
+                });
             }
         }
 
         if mods.len() >= data.per_page as usize {
-            break
+            break;
         }
     }
 

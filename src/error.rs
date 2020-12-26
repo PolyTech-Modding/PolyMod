@@ -45,7 +45,9 @@ impl From<sqlx::Error> for ServiceError {
 
         match err {
             E::Database(why) => Self::BadRequest(why.to_string()),
-            E::Decode(why) => Self::InternalServerError(format!("Error occurred while decoding a value: {}", why)),
+            E::Decode(why) => {
+                Self::InternalServerError(format!("Error occurred while decoding a value: {}", why))
+            }
             E::PoolTimedOut => {
                 error!("Database Pool Timed Out");
                 Self::InternalServerError("A handled database error has happened".into())
