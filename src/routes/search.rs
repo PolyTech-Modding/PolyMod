@@ -17,55 +17,6 @@ pub struct QueryModInfo {
     verification: Verification,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone)]
-#[serde(rename_all = "lowercase")]
-enum SortBy {
-    Name,
-    Downloads,
-    Uploaded,
-}
-
-impl Display for SortBy {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", format!("{:?}", self).to_lowercase())
-    }
-}
-
-impl Default for SortBy {
-    fn default() -> SortBy {
-        SortBy::Name
-    }
-}
-
-#[derive(Serialize, Deserialize, Debug, Default, Clone)]
-pub struct SearchInfo {
-    #[serde(default)]
-    query: String,
-    //#[serde(default)]
-    //category: Categories,
-    #[serde(default)]
-    keywords_only: bool,
-    #[serde(default)]
-    names_only: bool,
-    #[serde(default)]
-    sort_by: SortBy,
-    #[serde(default)]
-    reverse: bool,
-    #[serde(default = "therty")]
-    per_page: u8,
-    #[serde(default = "Verification::lowest")]
-    verification: Verification,
-    
-    #[serde(skip_serializing_if = "Option::is_none")]
-    before: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    after: Option<String>,
-}
-
-pub fn one() -> u8 { 1 }
-pub fn therty() -> u8 { 30 }
-
-
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct GetModsResponse {
     name: String,
@@ -101,19 +52,6 @@ pub struct GetModsResponse {
     build_script: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     metadata: Option<Vec<String>>,
-}
-
-#[derive(Serialize, Deserialize, Debug, Default)]
-pub struct SearchModsResponse {
-    checksum: String,
-    name: String,
-    version: String,
-    description: String,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    keywords: Vec<String>,
-    verification: Verification,
-    downloads: i64,
-    uploaded: String,
 }
 
 pub async fn get_mod(
@@ -263,6 +201,68 @@ struct QueryData {
     downloads: i64,
     uploaded: DateTime<Utc>
 }
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct SearchModsResponse {
+    checksum: String,
+    name: String,
+    version: String,
+    description: String,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    keywords: Vec<String>,
+    verification: Verification,
+    downloads: i64,
+    uploaded: String,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
+pub struct SearchInfo {
+    #[serde(default)]
+    query: String,
+    //#[serde(default)]
+    //category: Categories,
+    #[serde(default)]
+    keywords_only: bool,
+    #[serde(default)]
+    names_only: bool,
+    #[serde(default)]
+    sort_by: SortBy,
+    #[serde(default)]
+    reverse: bool,
+    #[serde(default = "thirty")]
+    per_page: u8,
+    #[serde(default = "Verification::lowest")]
+    verification: Verification,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    before: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    after: Option<String>,
+}
+
+pub fn one() -> u8 { 1 }
+pub fn thirty() -> u8 { 30 }
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+#[serde(rename_all = "lowercase")]
+enum SortBy {
+    Name,
+    Downloads,
+    Uploaded,
+}
+
+impl Display for SortBy {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", format!("{:?}", self).to_lowercase())
+    }
+}
+
+impl Default for SortBy {
+    fn default() -> SortBy {
+        SortBy::Name
+    }
+}
+
 
 pub async fn search(
     data: web::Query<SearchInfo>,
