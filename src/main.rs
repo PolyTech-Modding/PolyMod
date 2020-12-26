@@ -129,7 +129,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         web::resource("/download/{checksum}")
                             .route(web::get().to(download::download)),
                     )
-                    .service(web::resource("/get_mod").route(web::get().to(search::get_mod))),
+                    .service(web::resource("/get_mod").route(web::get().to(search::get_mod)))
+                    .service(web::resource("/search").route(web::get().to(search::search)))
             )
             .service(
                 web::scope("/api")
