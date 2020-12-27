@@ -99,8 +99,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .app_data(redis_ref.clone())
             .app_data(db_ref.clone())
             .app_data(config_ref.clone())
-            // enable logger - always register actix-web Logger middleware last
-            .wrap(middleware::Logger::default())
             .wrap(
                 // TODO: https://github.com/TerminalWitchcraft/actix-ratelimit/issues/10
                 RateLimiter::new(RedisStoreActor::from(store.clone()).start())
@@ -180,6 +178,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .service(web::resource("/upload").route(web::post().to(mod_upload::upload)))
                     .service(web::resource("/verify").to(verification::verify)),
             )
+            // enable logger - always register actix-web Logger middleware last
+            .wrap(middleware::Logger::default())
     })
     .bind(&format!("{}:{}", &config.address, &config.port))?
     .workers(config.workers)
