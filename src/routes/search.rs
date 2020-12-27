@@ -333,7 +333,7 @@ pub async fn search(
     .fetch(pool)
     .boxed();
 
-    let mut cont = !data.after.is_some();
+    let mut cont = data.after.is_none();
 
     while let Some(Ok(values)) = query.next().await {
         if let Some(before) = data.before.clone() {

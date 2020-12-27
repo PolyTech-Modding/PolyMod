@@ -1,7 +1,7 @@
 use crate::error::ServiceResult;
 use crate::model::Roles;
-use actix_web::{web, HttpResponse, HttpRequest};
-use sqlx::{PgPool, postgres::PgDatabaseError};
+use actix_web::{web, HttpRequest, HttpResponse};
+use sqlx::{postgres::PgDatabaseError, PgPool};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct VerifyData {
@@ -20,7 +20,11 @@ pub async fn verify(
     let query = sqlx::query!(
         "SELECT user_id, roles FROM tokens WHERE token = $1",
         // unwrap is safe this method only runs when the /api token check has been done.
-        req.headers().get("Authorization").unwrap().to_str().unwrap()
+        req.headers()
+            .get("Authorization")
+            .unwrap()
+            .to_str()
+            .unwrap()
     )
     .fetch_optional(pool)
     .await?;
@@ -32,12 +36,13 @@ pub async fn verify(
 
         if roles.contains(Roles::VERIFYER) {
             if !data.is_good && data.reason.is_none() {
-                return Ok(HttpResponse::BadRequest().body("Unable to submit failed verification without a reason."))
+                return Ok(HttpResponse::BadRequest()
+                    .body("Unable to submit failed verification without a reason."));
             }
 
             if let Some(reason) = &data.reason {
-                if !reason.contains(" ") {
-                    return Ok(HttpResponse::BadRequest().body("Invalid reason."))
+                if !reason.contains(' ') {
+                    return Ok(HttpResponse::BadRequest().body("Invalid reason."));
                 }
             }
 
@@ -60,10 +65,10 @@ pub async fn verify(
                 }
             };
         } else {
-            return Ok(HttpResponse::Unauthorized().body("User not allowed to verify."))
+            return Ok(HttpResponse::Unauthorized().body("User not allowed to verify."));
         }
     } else {
-        return Ok(HttpResponse::Unauthorized().body("Token provided not bound to a user."))
+        return Ok(HttpResponse::Unauthorized().body("Token provided not bound to a user."));
     }
 
     Ok(HttpResponse::Ok().body("Successfully verified mod"))
