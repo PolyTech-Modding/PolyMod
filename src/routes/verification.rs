@@ -31,8 +31,6 @@ pub async fn verify(
 
     if let Some(query_data) = query {
         let roles = Roles::from_bits_truncate(query_data.roles as u32);
-        dbg!(&query_data.roles);
-        dbg!(&roles);
 
         if roles.contains(Roles::VERIFYER) {
             let query = sqlx::query!(

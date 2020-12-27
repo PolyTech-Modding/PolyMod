@@ -181,9 +181,6 @@ pub async fn upload(
         }
     }
 
-    dbg!(&contents);
-    dbg!(&checksum);
-
     if contents.is_empty() {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {
             error!(
