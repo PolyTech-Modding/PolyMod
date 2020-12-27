@@ -15,12 +15,6 @@ pub enum Verification {
     Core,
 }
 
-impl Verification {
-    pub fn lowest() -> Self {
-        Verification::None
-    }
-}
-
 impl Default for Verification {
     fn default() -> Self {
         Self::None

@@ -13,7 +13,7 @@ use strsim::normalized_levenshtein;
 pub struct QueryModInfo {
     name: String,
     version: Option<String>,
-    #[serde(default = "Verification::lowest")]
+    #[serde(default)]
     verification: Verification,
 }
 
@@ -23,7 +23,7 @@ pub struct GetModsResponse {
     version: String,
     description: String,
 
-    #[serde(default = "Verification::lowest")]
+    #[serde(default)]
     verification: Verification,
     files: Vec<String>,
     downloads: usize,
@@ -234,7 +234,7 @@ pub struct SearchInfo {
     reverse: bool,
     #[serde(default = "thirty")]
     per_page: u8,
-    #[serde(default = "Verification::lowest")]
+    #[serde(default)]
     verification: Verification,
 
     #[serde(skip_serializing_if = "Option::is_none")]

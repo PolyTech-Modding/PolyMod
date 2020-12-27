@@ -87,6 +87,7 @@ pub async fn get_token(
     db: web::Data<PgPool>,
     config: web::Data<Config>,
 ) -> HttpResponse {
+    let pool = &**db;
     let mut conn = redis.get().await;
 
     if let Some(token) = id.identity() {
@@ -107,7 +108,7 @@ pub async fn get_token(
                 user.id as i64,
                 &user.email
             )
-            .fetch_optional(db.as_ref())
+            .fetch_optional(pool)
             .await
             .unwrap();
 
@@ -132,7 +133,7 @@ pub async fn get_token(
                     &user.email,
                     &token
                 )
-                .execute(db.as_ref())
+                .execute(pool)
                 .await
                 .unwrap();
 

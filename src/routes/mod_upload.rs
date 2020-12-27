@@ -98,7 +98,7 @@ pub async fn upload(
     db: web::Data<PgPool>,
     mut payload: Multipart,
 ) -> ServiceResult<HttpResponse> {
-    let db = &**db.clone();
+    let pool = &**db;
 
     let mut contents = String::new();
     let mut checksum = String::with_capacity(64);
@@ -223,7 +223,7 @@ pub async fn upload(
                 i.name,
                 i.version,
             )
-            .fetch_optional(db)
+            .fetch_optional(pool)
             .await
             .unwrap()
         })
@@ -260,7 +260,7 @@ pub async fn upload(
         .map(|i| i.checksum.to_string())
         .collect::<Vec<String>>();
 
-    // FIX: https://github.com/launchbadge/sqlx/issues/906
+    // FIX: https://github.com/launchbadge/sqlx/issues/298
 
     //let query = sqlx::query_unchecked!(
     //    "INSERT INTO mods
@@ -309,7 +309,7 @@ pub async fn upload(
         &data.metadata,
         &checksum,
         )
-        .execute(db)
+        .execute(pool)
         .await;
 
     if let Err(why) = query {
