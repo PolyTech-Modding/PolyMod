@@ -62,8 +62,8 @@ pub async fn verify(
             }
 
             if let Some(reason) = &data.reason {
-                if !reason.contains(' ') {
-                    return Ok(HttpResponse::BadRequest().body("Invalid reason."));
+                if !reason.contains(' ') || reason.len() < 60 {
+                    return Ok(HttpResponse::BadRequest().body("Invalid or too short of a reason."));
                 }
             }
 
