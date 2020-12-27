@@ -178,6 +178,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .service(web::resource("/upload").route(web::post().to(mod_upload::upload)))
                     .service(web::resource("/verify").to(verification::verify)),
             )
+            .default_service(
+                web::to(|| HttpResponse::NotFound().body("404 - Route Not Found"))
+            )
             // enable logger - always register actix-web Logger middleware last
             .wrap(middleware::Logger::default())
     })
