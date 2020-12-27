@@ -1,5 +1,5 @@
 use crate::error::ServiceResult;
-use crate::model::Roles;
+use crate::model::*;
 use actix_web::{web, HttpRequest, HttpResponse};
 use sqlx::{postgres::PgDatabaseError, PgPool};
 
@@ -35,6 +35,28 @@ pub async fn verify(
         dbg!(&roles);
 
         if roles.contains(Roles::VERIFYER) {
+            let query = sqlx::query!(r#"SELECT verification as "verification: Verification" FROM mods WHERE checksum = $1"#, &data.checksum)
+                .fetch_optional(pool)
+                .await?;
+
+            if let Some(x) = query {
+                if let Some(verification) = x.verification {
+                    if verification == Verification::Core {
+                        return Ok(HttpResponse::BadRequest()
+                            .body("Cannot verify Core mods."));
+                    } else if verification == Verification::Unsafe {
+                        return Ok(HttpResponse::BadRequest()
+                            .body("This mod has already been verified as Unsafe."));
+                    } else if verification == Verification::Manual {
+                        return Ok(HttpResponse::BadRequest()
+                            .body("This mod has already been manually verified."));
+                    }
+                }
+            } else {
+                return Ok(HttpResponse::BadRequest()
+                    .body("This mod does not exist."));
+            }
+
             if !data.is_good && data.reason.is_none() {
                 return Ok(HttpResponse::BadRequest()
                     .body("Unable to submit failed verification without a reason."));
@@ -71,5 +93,26 @@ pub async fn verify(
         return Ok(HttpResponse::Unauthorized().body("Token provided not bound to a user."));
     }
 
-    Ok(HttpResponse::Ok().body("Successfully verified mod"))
+    let query = sqlx::query!(
+        "SELECT id, is_good FROM verification WHERE checksum = $1",
+        &data.checksum,
+    )
+    .fetch_all(pool)
+    .await?;
+
+    let (good, bad): (Vec<_>, Vec<_>) = query.iter().partition(|i| i.is_good);
+
+    if bad.len() >= 2 {
+        sqlx::query!("UPDATE mods SET verification = 'Unsafe' WHERE checksum = $1", &data.checksum)
+            .execute(pool)
+            .await?;
+        Ok(HttpResponse::Ok().body("Successfully verified mod as Unsafe."))
+    } else if good.len() >= 2 {
+        sqlx::query!("UPDATE mods SET verification = 'Manual' WHERE checksum = $1", &data.checksum)
+            .execute(pool)
+            .await?;
+        Ok(HttpResponse::Ok().body("Successfully verified mod as Safe."))
+    } else {
+        Ok(HttpResponse::Ok().body("Successfully added mod verification."))
+    }
 }
