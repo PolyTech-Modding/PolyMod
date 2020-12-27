@@ -19,9 +19,9 @@ pub async fn verify(
 
     let query = sqlx::query!(
         "SELECT user_id, roles FROM tokens WHERE token = $1",
-        // unwrap is safe this method only runs when the /api token check has been done.
         req.headers()
             .get("Authorization")
+            // unwrap is safe this method only runs when the /api token check has been done.
             .unwrap()
             .to_str()
             .unwrap()
@@ -35,15 +35,17 @@ pub async fn verify(
         dbg!(&roles);
 
         if roles.contains(Roles::VERIFYER) {
-            let query = sqlx::query!(r#"SELECT verification as "verification: Verification" FROM mods WHERE checksum = $1"#, &data.checksum)
-                .fetch_optional(pool)
-                .await?;
+            let query = sqlx::query!(
+                r#"SELECT verification as "verification: Verification" FROM mods WHERE checksum = $1"#,
+                &data.checksum,
+            )
+            .fetch_optional(pool)
+            .await?;
 
             if let Some(x) = query {
                 if let Some(verification) = x.verification {
                     if verification == Verification::Core {
-                        return Ok(HttpResponse::BadRequest()
-                            .body("Cannot verify Core mods."));
+                        return Ok(HttpResponse::BadRequest().body("Cannot verify Core mods."));
                     } else if verification == Verification::Unsafe {
                         return Ok(HttpResponse::BadRequest()
                             .body("This mod has already been verified as Unsafe."));
@@ -53,8 +55,7 @@ pub async fn verify(
                     }
                 }
             } else {
-                return Ok(HttpResponse::BadRequest()
-                    .body("This mod does not exist."));
+                return Ok(HttpResponse::BadRequest().body("This mod does not exist."));
             }
 
             if !data.is_good && data.reason.is_none() {
@@ -103,14 +104,20 @@ pub async fn verify(
     let (good, bad): (Vec<_>, Vec<_>) = query.iter().partition(|i| i.is_good);
 
     if bad.len() >= 2 {
-        sqlx::query!("UPDATE mods SET verification = 'Unsafe' WHERE checksum = $1", &data.checksum)
-            .execute(pool)
-            .await?;
+        sqlx::query!(
+            "UPDATE mods SET verification = 'Unsafe' WHERE checksum = $1",
+            &data.checksum,
+        )
+        .execute(pool)
+        .await?;
         Ok(HttpResponse::Ok().body("Successfully verified mod as Unsafe."))
     } else if good.len() >= 2 {
-        sqlx::query!("UPDATE mods SET verification = 'Manual' WHERE checksum = $1", &data.checksum)
-            .execute(pool)
-            .await?;
+        sqlx::query!(
+            "UPDATE mods SET verification = 'Manual' WHERE checksum = $1",
+            &data.checksum,
+        )
+        .execute(pool)
+        .await?;
         Ok(HttpResponse::Ok().body("Successfully verified mod as Safe."))
     } else {
         Ok(HttpResponse::Ok().body("Successfully added mod verification."))

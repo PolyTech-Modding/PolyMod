@@ -1,155 +1,5 @@
 {
   "db": "PostgreSQL",
-  "01ff3dd6646e3af8d2c56cdd8e3efdd9807576ddc18ea900b2d2f0b4371beecb": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                CASE WHEN $2 = 'asc' THEN\n                    CASE $1\n                        WHEN 'name' THEN name\n                        -- WHEN 'uploaded' THEN uploaded\n                        -- WHEN 'downloads' THEN downloads\n                        ELSE NULL\n                    END\n                ELSE NULL\n                END\n                ASC,\n                CASE WHEN $2 = 'desc' THEN\n                    CASE $1\n                        WHEN 'name' THEN name\n                        -- WHEN 'uploaded' THEN uploaded\n                        -- WHEN 'downloads' THEN downloads\n                        ELSE NULL\n                    END\n                ELSE NULL\n                END\n                DESC\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
-    }
-  },
-  "0e0539c53db3998caec8880119c655eca955b88aec5f0dc127283ac243f82d2f": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                CASE WHEN $2 = 'asc' THEN\n                    CASE $1\n                        WHEN 'name' THEN name\n                        -- WHEN 'uploaded' THEN uploaded\n                        -- WHEN 'downloads' THEN downloads\n                        ELSE NULL\n                    END\n                ELSE NULL\n                END\n                ASC,\n                CASE WHEN $2 = 'desc' THEN\n                    CASE $1\n                        WHEN 'name' THEN name\n                        -- WHEN 'uploaded' THEN uploaded\n                        -- WHEN 'downloads' THEN downloads\n                        ELSE NULL\n                    END\n                ELSE NULL\n                END\n                DESC\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
-    }
-  },
   "18f35bd2b371b7fa0f38301c50aba938de2a5f9cd1f0b4baeaafdd6697456383": {
     "query": "INSERT INTO tokens (user_id, email, token) VALUES ($1, $2, $3)",
     "describe": {
@@ -162,6 +12,38 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "260b679b63d8ca1def06e6d45bb53bda4f549862fae43cf4a2bcfb7f385028bd": {
+    "query": "SELECT verification as \"verification: Verification\" FROM mods WHERE checksum = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "verification: Verification",
+          "type_info": {
+            "Custom": {
+              "name": "verification_level",
+              "kind": {
+                "Enum": [
+                  "Unsafe",
+                  "Auto",
+                  "Manual",
+                  "Core"
+                ]
+              }
+            }
+          }
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        true
+      ]
     }
   },
   "2a5566816a557082081e34b5bcc05f7e9af90ac113abd08f5d0a3828d89ce747": {
@@ -260,6 +142,26 @@
       ]
     }
   },
+  "32db067ee512f84092fda411950c08c46518b2c6be846c1b07072d8b10840fc7": {
+    "query": "SELECT user_id FROM tokens WHERE token = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Int8"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "35c6db06123c627fca13152fbd8ba08fec5300f2fa907f3699d1889a73be84d8": {
     "query": "SELECT token, is_banned FROM tokens WHERE user_id = $1 AND email = $2",
     "describe": {
@@ -287,223 +189,45 @@
       ]
     }
   },
-  "5f65856de1a04ae117cb3795e00a0d72d85cdb8922efdd85c5c9c4756fe4af91": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                CASE WHEN $2 = 'asc' THEN\n                    CASE $1\n                        WHEN 'uploaded' THEN uploaded\n                        -- WHEN 'name' THEN name\n                        -- WHEN 'downloads' THEN downloads\n                        ELSE uploaded\n                    END\n                ELSE NULL\n                END\n                ASC,\n                CASE WHEN $2 = 'desc' THEN\n                    CASE $1\n                        WHEN 'uploaded' THEN uploaded\n                        -- WHEN 'name' THEN name\n                        -- WHEN 'downloads' THEN downloads\n                        ELSE uploaded\n                    END\n                ELSE NULL\n                END\n                DESC\n        ",
+  "3a4cc710e0c88971f262d454ed3fd904e73608389126013a1ccbc940bcef63be": {
+    "query": "SELECT id, is_good FROM verification WHERE checksum = $1",
     "describe": {
       "columns": [
         {
           "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
+          "name": "id",
+          "type_info": "Int4"
         },
         {
           "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
+          "name": "is_good",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
         "Left": [
-          "Text",
           "Text"
         ]
       },
       "nullable": [
         false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
         false
       ]
     }
   },
-  "66dc07938260030d4c1f434ddb65302969bc361eb3824e1829cd27c191e5daaa": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                uploaded DESC;\n            ",
+  "5dcbf17f07130f6d2ee3c31761effe67c3b3c12905c17604d4fb19f90ca46b57": {
+    "query": "INSERT INTO verification (checksum, verifier_id, is_good, reason) VALUES ($1, $2, $3, $4)",
     "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
+      "columns": [],
       "parameters": {
-        "Left": []
+        "Left": [
+          "Varchar",
+          "Int8",
+          "Bool",
+          "Text"
+        ]
       },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
-    }
-  },
-  "68ec745c28c67282fdfa91eaed61607a1c955190c321a43218e4aa7360b4d467": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                uploaded ASC;\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
+      "nullable": []
     }
   },
   "8091e2d170ce9ff8e4799b74753c3501cff07227fc7039208618c2c1b6a762f1": {
@@ -532,6 +256,32 @@
       "nullable": []
     }
   },
+  "81e92710f1cc388f055323db9e295e585cfd08c6d27e4dfda004f79e83179636": {
+    "query": "SELECT user_id, roles FROM tokens WHERE token = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "user_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "roles",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  },
   "868079805a701ebe67c4df62ae3bf7cf48a753a5b7d70c4a5f66eb6a730eb869": {
     "query": "SELECT is_banned FROM tokens WHERE token = $1",
     "describe": {
@@ -552,436 +302,16 @@
       ]
     }
   },
-  "977bae89fce2949b52b60b39ba2ceeafa2502150bc67a10817990f495a45eb21": {
-    "query": "\n        SELECT\n            checksum,\n            name,\n            version,\n            description,\n            keywords,\n            verification as \"verification: Verification\",\n            downloads,\n            uploaded\n        FROM\n            mods\n        ",
+  "d2299a5e14a02eab7f364b2adb5bcadf32cd69d426e6d8807432effb1c97d754": {
+    "query": "UPDATE mods SET verification = 'Manual' WHERE checksum = $1",
     "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
-    }
-  },
-  "9b84d1c318d3b68758954baca7cca00cc6d9eb7fe524d0f4d397f51dee12fc42": {
-    "query": "\n        SELECT\n            checksum,\n            name,\n            version,\n            description,\n            keywords,\n            verification as \"verification: Verification\",\n            downloads,\n            uploaded\n        FROM\n            mods\n        ORDER BY\n            uploaded\n        ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": []
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
-    }
-  },
-  "ac49202219e108613d408f3a1b527f9bc8d3a5f87d55fd14f75e7b139f3069b7": {
-    "query": "SELECT checksum, name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, build_script, native_lib_checksums, dependencies_checksums, metadata, verification as \"verification: Verification\", downloads, uploaded FROM mods WHERE name = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "repository_git",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 5,
-          "name": "repository_hg",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 6,
-          "name": "authors",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 7,
-          "name": "documentation",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 8,
-          "name": "readme",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 9,
-          "name": "homepage",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 10,
-          "name": "license",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 11,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 12,
-          "name": "build_script",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 13,
-          "name": "native_lib_checksums",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 14,
-          "name": "dependencies_checksums",
-          "type_info": "VarcharArray"
-        },
-        {
-          "ordinal": 15,
-          "name": "metadata",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 16,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 17,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 18,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
+      "columns": [],
       "parameters": {
         "Left": [
           "Text"
         ]
       },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        true,
-        false,
-        false
-      ]
-    }
-  },
-  "d02a3f43bff8db8d794ba1d26cfc55fd4dca62798b749143400fa48577c3978c": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                quote_ident($1) ASC;\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
-    }
-  },
-  "d20f103420c30f268f1472d14dde9984c706dc9dad22b55d55c7e5df1f58780c": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                $1 ASC;\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
+      "nullable": []
     }
   },
   "e1d435e64b9533239d2e224b7a01e0ae9224515357be239c86e31a6e1d96eee1": {
@@ -994,80 +324,6 @@
         ]
       },
       "nullable": []
-    }
-  },
-  "eb44c0b62742a09db805fb27cfd9efddfcef446a880fc396094d870004548dae": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                $1 DESC;\n            ",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
     }
   },
   "ef9e49f4e1ce084efb13cd9522d5fa7a42fb1122e9426b9224db957a3f570e35": {
@@ -1210,78 +466,16 @@
       ]
     }
   },
-  "f10d6435ac5eb5b8d9219b4eaa45742a10845a67ae1696260bb20b475c8bb62f": {
-    "query": "\n            SELECT\n                checksum,\n                name,\n                version,\n                description,\n                keywords,\n                verification as \"verification: Verification\",\n                downloads,\n                uploaded\n            FROM\n                mods\n            ORDER BY\n                quote_ident($1) DESC;\n            -- ORDER BY CASE WHEN\n            --     $1 = 'name' THEN name DESC\n            -- ELSE;\n            ",
+  "fc70b601eee3bad876b6f9b0d5c9f3bf8121b0a00196f9931288b80e78581794": {
+    "query": "UPDATE mods SET verification = 'Unsafe' WHERE checksum = $1",
     "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "checksum",
-          "type_info": "Varchar"
-        },
-        {
-          "ordinal": 1,
-          "name": "name",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 2,
-          "name": "version",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "description",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "keywords",
-          "type_info": "TextArray"
-        },
-        {
-          "ordinal": 5,
-          "name": "verification: Verification",
-          "type_info": {
-            "Custom": {
-              "name": "verification_level",
-              "kind": {
-                "Enum": [
-                  "Unsafe",
-                  "Auto",
-                  "Manual",
-                  "Core"
-                ]
-              }
-            }
-          }
-        },
-        {
-          "ordinal": 6,
-          "name": "downloads",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 7,
-          "name": "uploaded",
-          "type_info": "Timestamptz"
-        }
-      ],
+      "columns": [],
       "parameters": {
         "Left": [
           "Text"
         ]
       },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false
-      ]
+      "nullable": []
     }
   }
 }
