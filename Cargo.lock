@@ -1981,6 +1981,7 @@ dependencies = [
  "actix-ratelimit",
  "actix-web",
  "base64 0.13.0",
+ "bitflags",
  "darkredis",
  "futures",
  "handlebars",

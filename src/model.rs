@@ -126,3 +126,19 @@ pub struct Config {
     #[serde(default = "default_path")]
     pub mods_path: String,
 }
+
+bitflags! {
+    pub struct Roles: u32 {
+        const OWNER    = 0b00000001;
+        const ADMIN    = 0b00000010;
+        const MOD      = 0b00000100;
+        const VERIFYER = 0b00001000;
+        const MAPPER   = 0b00001000;
+    }
+}
+
+impl Default for Roles {
+    fn default() -> Roles {
+        Roles::from_bits_truncate(0)
+    }
+}
