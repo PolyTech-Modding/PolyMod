@@ -1,6 +1,6 @@
 [package]
 name = "polymod"
-version = "0.1.0-alpha"
+version = "0.1.1-alpha"
 authors = ["nitsuga5124 <nitsuga5124@gmail.com>"]
 edition = "2018"
 
@@ -23,13 +23,14 @@ actix-multipart = "0.3"
 futures = "0.3"
 sanitize-filename = "0.2"
 semver = "0.11"
-actix-files = "0.4"
+actix-files = "0.5"
 sha2 = "0.9"
 strsim = "0.10"
 bitflags = "1.2"
 
 [dependencies.actix-web]
 version = "3"
+features = ["secure-cookies", "rustls"]
 
 [dependencies.actix-ratelimit]
 git = "https://github.com/TerminalWitchcraft/actix-ratelimit/"
