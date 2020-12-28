@@ -2,7 +2,7 @@ use crate::error::ServiceResult;
 use crate::model::Config;
 
 use actix_multipart::Multipart;
-use actix_web::{web, HttpResponse, HttpRequest};
+use actix_web::{web, HttpRequest, HttpResponse};
 
 use futures::stream::{self, StreamExt, TryStreamExt};
 use semver::Version;
@@ -322,12 +322,9 @@ pub async fn upload(
         warn!("5");
     } else {
         warn!("6");
-        let query = sqlx::query!(
-            "SELECT checksum FROM mods WHERE name = $1",
-            &data.name,
-        )
-        .fetch_optional(pool)
-        .await?;
+        let query = sqlx::query!("SELECT checksum FROM mods WHERE name = $1", &data.name)
+            .fetch_optional(pool)
+            .await?;
         warn!("7");
 
         if query.is_some() {
@@ -340,9 +337,7 @@ pub async fn upload(
             };
 
             warn!("9");
-            return Ok(
-                HttpResponse::Unauthorized().body("You do not own this mod")
-            );
+            return Ok(HttpResponse::Unauthorized().body("You do not own this mod"));
         } else {
             warn!("10");
             sqlx::query!(
