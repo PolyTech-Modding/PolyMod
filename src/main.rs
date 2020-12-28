@@ -34,7 +34,6 @@ use tokio::fs::File;
 use tokio::prelude::*;
 
 #[actix_web::main]
-#[instrument]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut file = File::open("Config.toml").await?;
     let mut content = String::new();

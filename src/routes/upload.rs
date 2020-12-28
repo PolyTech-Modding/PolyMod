@@ -2,7 +2,7 @@ use crate::error::ServiceResult;
 use crate::model::Config;
 
 use actix_multipart::Multipart;
-use actix_web::{web, HttpResponse};
+use actix_web::{web, HttpResponse, HttpRequest};
 
 use futures::stream::{self, StreamExt, TryStreamExt};
 use semver::Version;
@@ -92,12 +92,13 @@ pub struct ModJsonData {
 }
 
 /// curl -X POST http://localhost:8000/api/upload -i -H 'Authorization: asdasdasd' --form "mod=@mod.zip" --form "data=@data.json"
-/// TODO: Check for the owner of the mod before submitting.
 pub async fn upload(
+    req: HttpRequest,
     config: web::Data<Config>,
     db: web::Data<PgPool>,
     mut payload: Multipart,
 ) -> ServiceResult<HttpResponse> {
+    error!("AAAAAAAAAAAAAAAAAAAAA");
     let pool = &**db;
 
     let mut contents = String::new();
@@ -285,6 +286,79 @@ pub async fn upload(
     //    .execute(db)
     //    .await;
 
+    warn!("1");
+    let user = sqlx::query!(
+        "SELECT user_id, roles FROM tokens WHERE token = $1",
+        req.headers()
+            .get("Authorization")
+            // unwrap is safe this method only runs when the /api token check has been done.
+            .unwrap()
+            .to_str()
+            .unwrap()
+    )
+    .fetch_one(pool)
+    .await?;
+    warn!("2");
+
+    let owner = sqlx::query!(
+        "SELECT mod_name FROM owners WHERE user_id = $1 AND mod_name = $2",
+        user.user_id,
+        &data.name,
+    )
+    .fetch_optional(pool)
+    .await?;
+
+    warn!("3");
+    if let Some(_) = owner {
+        warn!("4");
+        sqlx::query!(
+            "UPDATE owners SET checksums = array_append(checksums::text[], $1) WHERE user_id = $2 AND mod_name = $3",
+            &checksum,
+            user.user_id,
+            &data.name,
+        )
+        .execute(pool)
+        .await?;
+        warn!("5");
+    } else {
+        warn!("6");
+        let query = sqlx::query!(
+            "SELECT checksum FROM mods WHERE name = $1",
+            &data.name,
+        )
+        .fetch_optional(pool)
+        .await?;
+        warn!("7");
+
+        if query.is_some() {
+            warn!("8");
+            if let Err(why) = tokio::fs::remove_file(&filepath).await {
+                error!(
+                    "Could not delete file `{}` due to a failed upload.\n{:#?}",
+                    &mod_checksum_path, why
+                );
+            };
+
+            warn!("9");
+            return Ok(
+                HttpResponse::Unauthorized().body("You do not own this mod")
+            );
+        } else {
+            warn!("10");
+            sqlx::query!(
+                "INSERT INTO owners (user_id, mod_name, checksums) VALUES ($1, $2, $3)",
+                user.user_id,
+                &data.name,
+                &vec![checksum.to_string()],
+            )
+            .execute(pool)
+            .await?;
+            warn!("11");
+        }
+    }
+    warn!("12");
+
+    // TODO: if this fails, clear previous sql work done.
     let query = sqlx::query!(
         "INSERT INTO mods
         (name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, build_script, dependencies_checksums, metadata, checksum)
@@ -308,6 +382,7 @@ pub async fn upload(
         )
         .execute(pool)
         .await;
+    warn!("13");
 
     if let Err(why) = query {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {
@@ -320,7 +395,9 @@ pub async fn upload(
         return Ok(HttpResponse::BadRequest().body(&format!("Database error: {}", why)));
     }
 
+    warn!("14");
     tokio::fs::rename(&filepath, &mod_checksum_path).await?;
+    warn!("15");
 
     Ok("ok".into())
 }
