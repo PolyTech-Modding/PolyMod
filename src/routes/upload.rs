@@ -362,9 +362,9 @@ pub async fn upload(
         &dependencies_checksums,
         &data.metadata,
         &checksum,
-        )
-        .execute(pool)
-        .await;
+    )
+    .execute(pool)
+    .await;
 
     if let Err(why) = query {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {
