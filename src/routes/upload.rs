@@ -5,12 +5,12 @@ use actix_multipart::Multipart;
 use actix_web::{web, HttpRequest, HttpResponse};
 
 use futures::stream::{self, StreamExt, TryStreamExt};
+use rand::Rng;
 use semver::Version;
 use sha2::{Digest, Sha256};
 use sqlx::PgPool;
 use tokio::fs::File;
 use tokio::prelude::*;
-use rand::Rng;
 //use sqlx::postgres::{Postgres, PgTypeInfo, PgArgumentBuffer};
 //use sqlx::types::Type;
 
@@ -311,7 +311,7 @@ pub async fn upload(
     .await?;
 
     warn!("3");
-    if let Some(_) = owner {
+    if owner.is_some() {
         warn!("4");
         sqlx::query!(
             "UPDATE owners SET checksums = array_append(checksums::text[], $1) WHERE user_id = $2 AND mod_name = $3",
