@@ -14,20 +14,6 @@
       "nullable": []
     }
   },
-  "1c9c916c1ecfea4d57bd2bef0990de455cf4c77036c8e3bc9441605e06089cb7": {
-    "query": "UPDATE owners SET checksums = array_append(checksums, $1) WHERE user_id = $2 AND mod_name = $3",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Varchar",
-          "Int8",
-          "Text"
-        ]
-      },
-      "nullable": []
-    }
-  },
   "260b679b63d8ca1def06e6d45bb53bda4f549862fae43cf4a2bcfb7f385028bd": {
     "query": "SELECT verification as \"verification: Verification\" FROM mods WHERE checksum = $1",
     "describe": {
@@ -152,26 +138,6 @@
         true,
         true,
         false,
-        false
-      ]
-    }
-  },
-  "32db067ee512f84092fda411950c08c46518b2c6be846c1b07072d8b10840fc7": {
-    "query": "SELECT user_id FROM tokens WHERE token = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Int8"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": [
         false
       ]
     }
@@ -343,26 +309,6 @@
       "parameters": {
         "Left": [
           "Text"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
-  "995d3fb99a65cd7527f9723066558995be7e912e8f0aab6672f27accfe55b07e": {
-    "query": "SELECT mod_name FROM owners WHERE user_id = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "mod_name",
-          "type_info": "Text"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Int8"
         ]
       },
       "nullable": [
