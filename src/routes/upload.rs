@@ -171,8 +171,6 @@ pub async fn upload(
                     .collect::<String>()
             };
 
-            warn!("{}", &checksum);
-
             let first = checksum.chars().next().unwrap();
             let second = {
                 let mut x = first.to_string();
@@ -288,7 +286,6 @@ pub async fn upload(
     //    .execute(db)
     //    .await;
 
-    warn!("1");
     let user = sqlx::query!(
         "SELECT user_id, roles FROM tokens WHERE token = $1",
         req.headers()
@@ -300,7 +297,6 @@ pub async fn upload(
     )
     .fetch_one(pool)
     .await?;
-    warn!("2");
 
     let owner = sqlx::query!(
         "SELECT mod_name FROM owners WHERE user_id = $1 AND mod_name = $2",
@@ -310,9 +306,7 @@ pub async fn upload(
     .fetch_optional(pool)
     .await?;
 
-    warn!("3");
     if owner.is_some() {
-        warn!("4");
         sqlx::query!(
             "UPDATE owners SET checksums = array_append(checksums::text[], $1) WHERE user_id = $2 AND mod_name = $3",
             &checksum,
@@ -321,16 +315,12 @@ pub async fn upload(
         )
         .execute(pool)
         .await?;
-        warn!("5");
     } else {
-        warn!("6");
         let query = sqlx::query!("SELECT checksum FROM mods WHERE name = $1", &data.name)
             .fetch_optional(pool)
             .await?;
-        warn!("7");
 
         if query.is_some() {
-            warn!("8");
             if let Err(why) = tokio::fs::remove_file(&filepath).await {
                 error!(
                     "Could not delete file `{}` due to a failed upload.\n{:#?}",
@@ -338,10 +328,8 @@ pub async fn upload(
                 );
             };
 
-            warn!("9");
             return Ok(HttpResponse::Unauthorized().body("You do not own this mod"));
         } else {
-            warn!("10");
             sqlx::query!(
                 "INSERT INTO owners (user_id, mod_name, checksums) VALUES ($1, $2, $3)",
                 user.user_id,
@@ -350,10 +338,8 @@ pub async fn upload(
             )
             .execute(pool)
             .await?;
-            warn!("11");
         }
     }
-    warn!("12");
 
     // TODO: if this fails, clear previous sql work done.
     let query = sqlx::query!(
@@ -379,7 +365,6 @@ pub async fn upload(
         )
         .execute(pool)
         .await;
-    warn!("13");
 
     if let Err(why) = query {
         if let Err(why) = tokio::fs::remove_file(&filepath).await {
@@ -392,9 +377,7 @@ pub async fn upload(
         return Ok(HttpResponse::BadRequest().body(&format!("Database error: {}", why)));
     }
 
-    warn!("14");
     tokio::fs::rename(&filepath, &mod_checksum_path).await?;
-    warn!("15");
 
     Ok("ok".into())
 }
