@@ -10,6 +10,7 @@ use sha2::{Digest, Sha256};
 use sqlx::PgPool;
 use tokio::fs::File;
 use tokio::prelude::*;
+use rand::Rng;
 //use sqlx::postgres::{Postgres, PgTypeInfo, PgArgumentBuffer};
 //use sqlx::types::Type;
 
@@ -133,9 +134,10 @@ pub async fn upload(
             }
 
             filepath = format!(
-                "{}/{}",
+                "{}/{}-{}",
                 config.mods_path,
-                sanitize_filename::sanitize(&filename)
+                rand::thread_rng().gen_range(1000..100000),
+                sanitize_filename::sanitize(&filename),
             );
 
             {

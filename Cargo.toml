@@ -27,6 +27,7 @@ actix-files = "0.5"
 sha2 = "0.9"
 strsim = "0.10"
 bitflags = "1.2"
+rand = "0.8"
 
 [dependencies.actix-web]
 version = "3"
