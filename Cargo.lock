@@ -1973,6 +1973,7 @@ dependencies = [
  "base64 0.13.0",
  "bitflags",
  "darkredis",
+ "dotenv",
  "futures",
  "handlebars",
  "hex",

@@ -35,6 +35,8 @@ use tokio::prelude::*;
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    dotenv::dotenv()?;
+
     let mut file = File::open("Config.toml").await?;
     let mut content = String::new();
 
