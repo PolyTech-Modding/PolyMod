@@ -120,18 +120,33 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         Ok(key.to_string())
                     }),
             )
-            .service(web::resource("/").route(web::get().to(login::index)))
+            .service(web::resource("/").route(web::get().to(|| async move {
+                actix_files::NamedFile::open("./static/homepage.html").unwrap()
+            })))
+            .service(web::resource("/search").route(web::get().to(|| async move {
+                actix_files::NamedFile::open("./static/search_results.html").unwrap()
+            })))
+            .service(web::resource("/submit").route(web::get().to(|| async move {
+                actix_files::NamedFile::open("./static/submit.html").unwrap()
+            })))
+            .service(web::resource("/mod").route(web::get().to(get_mod::front_end)))
+            .service(web::resource("/user").route(web::get().to(login::index)))
             .service(web::resource("/login").route(web::get().to(login::login)))
             .service(web::resource("/logout").to(login::logout))
             .service(web::resource("/token").route(web::get().to(login::get_token)))
             .service(web::resource("/discord/oauth2").route(web::get().to(login::oauth)))
+            .service(actix_files::Files::new("/static", "./static").show_files_listing())
+            .service(actix_files::Files::new("/templates", "./templates").show_files_listing())
+            .service(web::resource("/favicon.ico").to(|| async move {
+                actix_files::NamedFile::open("./static/PolyTech.svg").unwrap()
+            }))
             .service(
                 web::scope("/public_api")
                     .service(
                         web::resource("/download/{checksum}")
                             .route(web::get().to(download::download)),
                     )
-                    .service(web::resource("/get_mod").route(web::get().to(search::get_mod)))
+                    .service(web::resource("/get_mod").route(web::get().to(get_mod::get_mod)))
                     .service(web::resource("/search").route(web::get().to(search::search))),
             )
             .service(

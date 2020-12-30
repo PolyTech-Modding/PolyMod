@@ -11,6 +11,7 @@ pub enum ServiceError {
     BadRequest(String),
     InternalServerError(String),
     Unauthorized,
+    NoContent,
 }
 
 impl Error for ServiceError {}
@@ -29,6 +30,7 @@ impl ResponseError for ServiceError {
                 HttpResponse::InternalServerError().body(message)
             }
             ServiceError::Unauthorized => HttpResponse::Unauthorized().body("Unauthorized"),
+            ServiceError::NoContent => HttpResponse::NoContent().finish(),
         }
     }
 }
@@ -66,5 +68,11 @@ impl From<sqlx::Error> for ServiceError {
                 Self::InternalServerError("Unhandled database error".into())
             }
         }
+    }
+}
+
+impl From<serde_json::Error> for ServiceError {
+    fn from(err: serde_json::Error) -> ServiceError {
+        ServiceError::InternalServerError(err.to_string())
     }
 }

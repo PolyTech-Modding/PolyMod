@@ -1,0 +1,12 @@
+.navbar {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.logo {
+  transition: 1s cubic-bezier(0.075, 0.82, 0.165, 1) transform;
+  /* transform: translateY(-5%); */
+}
+
+.navbar-brand:hover .logo {
+  transform: translateY(-15%);
+}

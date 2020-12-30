@@ -1,0 +1,53 @@
+<html>
+  <body>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+    />
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"
+    ></script>
+    <div id="test">scroll to understand</div>
+    <div id="wrapper" style="height: 400px; overflow: auto">
+      <div id="content"></div>
+    </div>
+
+    <script language="JavaScript">
+      // we will add this content, replace for anything you want to add
+      var more = '<div class="card m-3" style="height: 200px; background: #EEE;"></div>';
+
+      var wrapper = document.getElementById("wrapper");
+      var content = document.getElementById("content");
+      var test = document.getElementById("test");
+      content.innerHTML = more + more + more;
+
+      // cross browser addEvent, today you can safely use just addEventListener
+      function addEvent(obj, ev, fn) {
+        if (obj.addEventListener) obj.addEventListener(ev, fn, false);
+        else if (obj.attachEvent) obj.attachEvent("on" + ev, fn);
+      }
+
+      // this is the scroll event handler
+      function scroller() {
+        // print relevant scroll info
+        test.innerHTML = wrapper.scrollTop + "+" + wrapper.offsetHeight + "+100>" + content.offsetHeight;
+
+        // add more contents if user scrolled down enough
+        if (wrapper.scrollTop + wrapper.offsetHeight + 100 > content.offsetHeight) {
+          content.innerHTML += more;
+        }
+      }
+
+      // hook the scroll handler to scroll event
+      addEvent(wrapper, "scroll", scroller);
+    </script>
+  </body>
+</html>

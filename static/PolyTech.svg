@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1634 1152" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #004d70;
+      }
+      .cls-2 {
+        fill: #00c4ff;
+      }
+      .cls-3 {
+        fill: #007ead;
+      }
+      .cls-4 {
+        fill: #000a75;
+      }
+      .cls-5 {
+        fill: #0048ff;
+      }
+      .cls-6 {
+        fill: #00ff2c;
+      }
+      .cls-7 {
+        fill: #00941a;
+      }
+    </style>
+  </defs>
+  <g data-name="Middle Cube">
+    <g data-name="Axo Surface*">
+      <polygon class="cls-1" points="816.92 1141 816.92 700.51 1198.4 480.26 1198.4 920.75" data-name="Axo panel" />
+      <polygon class="cls-2" points="816.92 700.51 435.44 480.26 816.92 260.01 1198.4 480.26" data-name="Axo panel" />
+    </g>
+    <g data-name="Axo cap">
+      <polygon class="cls-3" points="816.92 1141 435.44 920.75 435.44 480.26 816.92 700.51" data-name="Axo base" />
+    </g>
+  </g>
+  <g data-name="Right Cube">
+    <g data-name="Axo Surface*">
+      <polygon class="cls-4" points="1246.8 892.78 1246.8 452.29 1628.3 232.04 1628.3 672.53" data-name="Axo panel" />
+      <polygon class="cls-5" points="1246.8 452.29 865.37 232.04 1246.8 11.79 1628.3 232.04" data-name="Axo panel" />
+    </g>
+  </g>
+  <g data-name="Left Cube">
+    <g data-name="Axo Surface*">
+      <polygon class="cls-6" points="386.61 452.06 5.13 231.82 386.61 11.57 768.09 231.82" data-name="Axo panel" />
+    </g>
+    <g data-name="Axo cap">
+      <polygon class="cls-7" points="386.61 892.56 5.13 672.31 5.13 231.82 386.61 452.06" data-name="Axo base" />
+    </g>
+  </g>
+</svg>

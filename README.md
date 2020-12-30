@@ -13,7 +13,7 @@ log = "info"
 secret_key = "" # 32 bytes hex string
 iv_key = "" # 16 bytes hex string
 
-oauth2_url = ""
+oauth2_url = "" # must have scopes "identify email guilds"
 client_id = 0
 client_secret = ""
 redirect_uri = ""

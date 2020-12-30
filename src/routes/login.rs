@@ -66,7 +66,7 @@ pub async fn login(
 
     if let Some(token) = id.identity() {
         if conn.get(&token).await.unwrap().is_some() {
-            return HttpResponse::Found().header(header::LOCATION, "/").finish();
+            return HttpResponse::Found().header(header::LOCATION, "/user").finish();
         }
     }
 
@@ -153,7 +153,7 @@ pub async fn logout(id: Identity, redis: web::Data<ConnectionPool>) -> HttpRespo
     }
 
     id.forget();
-    HttpResponse::Found().header(header::LOCATION, "/").finish()
+    HttpResponse::Found().header(header::LOCATION, "/user").finish()
 }
 
 pub async fn oauth(
@@ -197,5 +197,5 @@ pub async fn oauth(
         .await
         .unwrap();
 
-    Ok(HttpResponse::Found().header(header::LOCATION, "/").finish())
+    Ok(HttpResponse::Found().header(header::LOCATION, "/user").finish())
 }
