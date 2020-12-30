@@ -148,7 +148,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         async move {
                             if token.is_empty() {
                                 return Err(HttpResponse::Unauthorized()
-                                    .body("Unauthorized: No Authorization Token provided")
+                                    .body("No Authorization Token provided")
                                     .into());
                             }
 
@@ -163,7 +163,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             if let Some(data) = query {
                                 if data.is_banned {
                                     Err(HttpResponse::Unauthorized()
-                                        .body("Unauthorized: Banned User")
+                                        .body("Banned User")
                                         .into())
                                 } else {
                                     let res = fut.await?;
@@ -171,7 +171,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                                 }
                             } else {
                                 Err(HttpResponse::Unauthorized()
-                                    .body("Unauthorized: Invalid Token")
+                                    .body("Invalid Token")
                                     .into())
                             }
                         }
