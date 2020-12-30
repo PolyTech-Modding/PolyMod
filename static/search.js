@@ -14,7 +14,7 @@ let is_end = false;
 results = document.getElementById("search_results");
 wrapper = document.getElementById("search_wrapper");
 let after_checksum = null;
-let per_page = 10
+let per_page = 30
 /*
 <div class="d-flex justify-content-center">
 		<div class="spinner-border text-primary" role="status">
