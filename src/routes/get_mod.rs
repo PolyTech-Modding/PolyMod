@@ -18,7 +18,6 @@ pub struct QueryModInfo {
 #[derive(Serialize, Deserialize, Debug)]
 pub struct ModData {
     data: GetModsResponse,
-    data_string: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]
@@ -213,10 +212,7 @@ pub async fn front_end(
     let pool = db.as_ref();
     let data = get_mods_data(&*data, pool).await?;
 
-    let mod_data = ModData {
-        data_string: serde_json::to_string(&data)?,
-        data,
-    };
+    let mod_data = ModData { data };
 
     let body = hb.render("mod_view_page", &mod_data).unwrap();
 
