@@ -36,7 +36,7 @@ If the PR doesn't pass the CI/CD checks, it won't be merged until fixed.
 ## Code Style
 
 We don't follow most formatting applications because it often produces unreadable results.
-There are some exceptions to this rule, such as rustfmt, but for exmple, `tidy` is not used for HTML.
+There are some exceptions to this rule, such as `rustfmt`, but for exmple, `tidy` is not used for HTML.
 
 Generally, there are a few rules to note, the rest should be grokable from existing rules:
 
