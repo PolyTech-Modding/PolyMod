@@ -177,17 +177,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                             if let Some(data) = query {
                                 if data.is_banned {
-                                    Err(HttpResponse::Unauthorized()
-                                        .body("Banned User")
-                                        .into())
+                                    Err(HttpResponse::Unauthorized().body("Banned User").into())
                                 } else {
                                     let res = fut.await?;
                                     Ok(res)
                                 }
                             } else {
-                                Err(HttpResponse::Unauthorized()
-                                    .body("Invalid Token")
-                                    .into())
+                                Err(HttpResponse::Unauthorized().body("Invalid Token").into())
                             }
                         }
                     })

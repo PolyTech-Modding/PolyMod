@@ -2,10 +2,10 @@ use crate::error::{ServiceError, ServiceResult};
 use crate::model::Verification;
 use actix_web::{web, HttpResponse};
 use futures::StreamExt;
+use handlebars::Handlebars;
 use semver::{Version, VersionReq};
 use sqlx::PgPool;
 use std::collections::BTreeMap;
-use handlebars::Handlebars;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct QueryModInfo {
@@ -102,7 +102,10 @@ pub async fn get_mods_data(data: &QueryModInfo, pool: &PgPool) -> ServiceResult<
             let v_user = match VersionReq::parse(&version) {
                 Ok(x) => x,
                 Err(why) => {
-                    return Err(ServiceError::BadRequest(format!("Invalid semver provided: {}", why)))
+                    return Err(ServiceError::BadRequest(format!(
+                        "Invalid semver provided: {}",
+                        why
+                    )))
                 }
             };
             let v_db = Version::parse(&values.version).unwrap();
@@ -190,7 +193,6 @@ pub async fn get_mods_data(data: &QueryModInfo, pool: &PgPool) -> ServiceResult<
         Some(x) => Ok(x.1.clone()),
         None => Err(ServiceError::NoContent),
     }
-    
 }
 
 pub async fn get_mod(
@@ -219,4 +221,4 @@ pub async fn front_end(
     let body = hb.render("mod_view_page", &mod_data).unwrap();
 
     Ok(HttpResponse::Ok().body(&body))
-} 
+}

@@ -1,4 +1,4 @@
-use crate::error::{ServiceResult, ServiceError};
+use crate::error::{ServiceError, ServiceResult};
 use actix_files::NamedFile;
 use actix_web::web;
 use sqlx::PgPool;
@@ -11,7 +11,11 @@ pub async fn download(
         Ok(x) if x.len() != 32 => {
             return Err(ServiceError::BadRequest("Invalid checksum length".into()))
         }
-        Err(_) => return Err(ServiceError::BadRequest("Invalid characters found in checksum".into())),
+        Err(_) => {
+            return Err(ServiceError::BadRequest(
+                "Invalid characters found in checksum".into(),
+            ))
+        }
         _ => (),
     }
 
