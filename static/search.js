@@ -200,7 +200,7 @@ function addCard(result) {
             */
     card = document.createElement("div");
     card.setAttribute("role", "button");
-    card.setAttribute("onclick", `document.location.href = '/mod?name=${result.name}&version==${result.version}'`);
+    card.setAttribute("onclick", `document.location.href = '/mod?name=${result.name}&version==${result.version}&verification=${result.verification}'`);
     card.classList.add("card");
 
     body = document.createElement("div");
