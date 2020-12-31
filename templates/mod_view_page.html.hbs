@@ -116,7 +116,6 @@
 
     <div class="card col-md-4 p-0 m-0 float-md-end">
       <div class="card-body">
-        <div id="verification_warnings"></div>
         <table class="table mx-1">
           <thead>
             <th scope="colgroup" colspan="2">Details</th>
@@ -136,11 +135,17 @@
             </tr>
             <tr>
               <td>Authors</td>
-              <td id="detail_authors"></td>
+              <td id="detail_authors">
+                {{#each data.authors}}
+                    {{ this }}<br>
+                {{/each}}
+              </td>
             </tr>
             <tr>
               <td>Verification</td>
-              <td id="verification_level"></td>
+              <td id="verification_level">
+                {{ data.verification }}
+              </td>
             </tr>
             <tr>
               <td>Release Date</td>
@@ -149,10 +154,6 @@
             <tr>
               <td>License</td>
               <td>{{ data.license }}</td>
-            </tr>
-            <tr>
-              <td>Categories</td>
-              <td id="detail_categories"></td>
             </tr>
             <tr>
               <td>Documentation</td>
@@ -173,6 +174,7 @@
       </div>
 
       <div class="card-body">
+        <div id="verification_warnings"></div>
         <div class="card bg-light">
           <div class="card-body d-flex align-items-center">
             <div class="me-auto"><b>Description: </b>{{ data.package.description }}</div>
@@ -182,7 +184,7 @@
           </div>
         </div>
 
-        <div id="content" class="card-text"></div>
+        <div id="content" class="card-text">{{ data.readme }}</div>
         <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
       </div>
     </div>
@@ -192,9 +194,8 @@
       integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
       crossorigin="anonymous"
       ></script>
-
-    <div id="data_" style="display: none">{{ data_string }}</div>
-
+    <div id="files" style="display: none">{{#each data.files}}{{ this }}<br>{{/each}}</div>
+    <div id="uploaded" style="display: none">{{ data.uploaded }}</div>
     <script defer src="/static/mod_view.js"></script>
   </body>
 </html>

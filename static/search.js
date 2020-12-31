@@ -23,7 +23,7 @@ let per_page = 30
 </div>
 */
 loading_wheel = document.createElement("div");
-loading_wheel.classList.add("d-flex", "justify-content-center");
+loading_wheel.classList.add("d-flex", "justify-content-center", "loading_wheel");
 spinner = document.createElement("div");
 spinner.classList.add("spinner-border", "text-primary", "m-4");
 spinner.setAttribute("role", "status");
@@ -34,6 +34,10 @@ spinner.appendChild(span);
 loading_wheel.appendChild(spinner);
 
 function handleSearch(clear = true, after_checksum = null) {
+    if (clear) {
+        console.log("Clearing search results.");
+        results.innerHTML = "";
+    }
     form = document.getElementById("main_form");
     search_query = document.getElementById("query").cloneNode();
     search_query.setAttribute("hidden", true);
@@ -72,17 +76,36 @@ function handleSearch(clear = true, after_checksum = null) {
     fetch("./public_api/search?" + api_params, {mode: "no-cors"})
         .then(function (response) {
             console.log(results.status)
+            if (response.status === 204){
+                if (clear){
+                    console.log("No results. Ending search.")
+                    results.innerHTML += '<div class="d-flex justify-content-center m-2 h5">No Results.</div>';
+                }
+                else {
+                    console.log("Page is emtpy or not full, end of resuls reached.")
+                    results.innerHTML += '<div class="d-flex justify-content-center m-2 h5">You\'ve reached the end.</div>';
+                }
+                is_end = true
+                return
+            }
+            if (response.status === 400){
+                console.log("Invalid Search Parameters. Ending search.")
+                results.innerHTML += '<div class="d-flex justify-content-center m-2 h5">Invalid Search.</div>';
+                is_end = true
+                return
+            }
             if (response.status !== 200) {
                 console.log("Looks like there was a problem. Status Code: " + response.status);
+                results.innerHTML += `<div class="d-flex justify-content-center m-2 h5">
+                Looks like there was a problem. Status Code: ${response.status}
+                </div>`;
+                is_end = true;
                 return;
             }
             // Examine the text in the response
             response.json().then(function (json_data) {
                 data = json_data;
-                if (clear) {
-                    console.log("Clearing search results.");
-                    results.innerHTML = "";
-                }
+                
                 if (data.length > 0){
                     if (after_checksum == data[0].checksum){
                         console.log("Removing leading duplicate entry")
@@ -109,7 +132,10 @@ function handleSearch(clear = true, after_checksum = null) {
             console.log("Fetch Error :-S", err);
         })
         .then(function () {
-            results.removeChild(loading_wheel);
+            wheels = document.getElementsByClassName("loading_wheel")
+            for (var i = 0; i < wheels.length; i++){
+                wheels[i].remove()
+            }
         });
 }
 
@@ -148,7 +174,6 @@ function autoFillFromUrl() {
     params = new URLSearchParams(location.search);
 
     fillFormItemFromUrl("query", document.getElementById("query"), "input", params)
-    fillFormItemFromUrl("category", document.getElementsByName("category")[0], "option", params)
     fillFormItemFromUrl("sort_by", document.getElementsByName("sort_by")[0], "option", params)
     fillFormItemFromUrl("search_field", document.getElementsByName("search_field")[0], "option", params)
     fillFormItemFromUrl("verification", document.getElementsByName("verification")[0], "option", params)
@@ -175,7 +200,7 @@ function addCard(result) {
             */
     card = document.createElement("div");
     card.setAttribute("role", "button");
-    card.setAttribute("onclick", `document.location.href = '/mod?name=${result.name}'`);
+    card.setAttribute("onclick", `document.location.href = '/mod?name=${result.name}&version==${result.version}'`);
     card.classList.add("card");
 
     body = document.createElement("div");
