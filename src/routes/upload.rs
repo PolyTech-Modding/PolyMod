@@ -101,7 +101,6 @@ pub async fn upload(
     db: web::Data<PgPool>,
     mut payload: Multipart,
 ) -> ServiceResult<HttpResponse> {
-    error!("AAAAAAAAAAAAAAAAAAAAA");
     let pool = &**db;
 
     let mut contents = String::new();
