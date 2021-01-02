@@ -6,7 +6,7 @@ verification_level = verif_detail.innerText
 files = document.getElementById("files").innerHTML.split("<br>")
 uploaded_string = document.getElementById("uploaded").innerText
 // set readme
-document.getElementById("content").innerHTML = marked(document.getElementById("content").innerHTML);
+document.getElementById("content").innerHTML = DOMPurify.sanitize( marked(document.getElementById("content").innerHTML) );
 
 level = verificationProperties.fromVerificationLevel(verification_level);
 
