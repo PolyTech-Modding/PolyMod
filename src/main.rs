@@ -130,7 +130,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 actix_files::NamedFile::open("./static/submit.html").unwrap()
             })))
             .service(web::resource("/mod").route(web::get().to(get_mod::front_end)))
-            .service(web::resource("/user").route(web::get().to(login::index)))
+            .service(web::resource("/user").route(web::get().to(users::index)))
             .service(web::resource("/oauth2_url").to(login::get_oauth2))
             .service(web::resource("/login").route(web::get().to(login::login)))
             .service(web::resource("/logout").to(login::logout))
@@ -148,7 +148,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             .route(web::get().to(download::download)),
                     )
                     .service(web::resource("/get_mod").route(web::get().to(get_mod::get_mod)))
-                    .service(web::resource("/search").route(web::get().to(search::search))),
+                    .service(web::resource("/search").route(web::get().to(search::search)))
+                    .service(web::resource("/me").route(web::get().to(users::me)))
             )
             .service(
                 web::scope("/api")

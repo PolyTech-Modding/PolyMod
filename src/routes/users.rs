@@ -1,0 +1,123 @@
+use crate::error::*;
+use crate::model::*;
+
+use actix_identity::Identity;
+use actix_web::http::header;
+use actix_web::{web, HttpRequest, HttpResponse};
+
+use darkredis::ConnectionPool;
+use handlebars::Handlebars;
+use sqlx::postgres::PgPool;
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MeResponseData {
+    roles: u32,
+    user_id: u64,
+    is_banned: bool,
+    token: String,
+}
+
+pub async fn index(
+    id: Identity,
+    hb: web::Data<Handlebars<'_>>,
+    redis: web::Data<ConnectionPool>,
+) -> HttpResponse {
+    let mut conn = redis.get().await;
+
+    if let Some(token) = id.identity() {
+        if conn.get(&token).await.unwrap().is_some() {
+            let client = reqwest::Client::new();
+            let user = client
+                .get(&format!("{}/users/@me", API_ENDPOINT))
+                .bearer_auth(&token)
+                .send()
+                .await
+                .unwrap()
+                .json::<UserResponse>()
+                .await
+                .unwrap();
+
+            let data = serde_json::json!({
+                "name": user.username,
+                "discriminator": user.discriminator,
+            });
+
+            let body = hb.render("discord_user", &data).unwrap();
+
+            return HttpResponse::Ok().body(body);
+        }
+    }
+
+    HttpResponse::Found()
+        .header(header::LOCATION, "/login")
+        .finish()
+}
+
+pub async fn me(
+    req: HttpRequest,
+    id: Identity,
+    redis: web::Data<ConnectionPool>,
+    db: web::Data<PgPool>,
+) -> ServiceResult<HttpResponse> {
+    let pool = &**db;
+    let mut conn = redis.get().await;
+
+    if let Some(token) = id.identity() {
+        if conn.get(&token).await.unwrap().is_some() {
+            let client = reqwest::Client::new();
+            let user = client
+                .get(&format!("{}/users/@me", API_ENDPOINT))
+                .bearer_auth(&token)
+                .send()
+                .await
+                .unwrap()
+                .json::<UserResponse>()
+                .await
+                .unwrap();
+
+            let query = sqlx::query!("SELECT * FROM tokens WHERE user_id = $1", user.id as i64)
+                .fetch_optional(pool)
+                .await?;
+
+            if let Some(data) = query {
+                let roles = Roles::from_bits_truncate(data.roles as u32);
+
+                let data = MeResponseData {
+                    roles: roles.bits(),
+                    user_id: data.user_id as u64,
+                    is_banned: data.is_banned,
+                    token: data.token.to_string(),
+                };
+
+                return Ok(HttpResponse::Ok().json(data))
+            }
+
+            return Ok(HttpResponse::NoContent().finish());
+        }
+    }
+
+    if let Some(token) = req.headers().get("Authorization") {
+        let token = token.to_str().unwrap();
+
+        let query = sqlx::query!("SELECT * FROM tokens WHERE token = $1", token)
+            .fetch_optional(pool)
+            .await?;
+
+        if let Some(data) = query {
+            let roles = Roles::from_bits_truncate(data.roles as u32);
+
+            let data = MeResponseData {
+                roles: roles.bits(),
+                user_id: data.user_id as u64,
+                is_banned: data.is_banned,
+                token: token.to_string(),
+            };
+
+            Ok(HttpResponse::Ok().json(data))
+        } else {
+            Ok(HttpResponse::NoContent().finish())
+        }
+    } else {
+        Ok(HttpResponse::NoContent().finish())
+    }
+}
