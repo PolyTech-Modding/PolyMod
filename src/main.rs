@@ -131,6 +131,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             })))
             .service(web::resource("/mod").route(web::get().to(get_mod::front_end)))
             .service(web::resource("/user").route(web::get().to(login::index)))
+            .service(web::resource("/oauth2_url").to(login::get_oauth2))
             .service(web::resource("/login").route(web::get().to(login::login)))
             .service(web::resource("/logout").to(login::logout))
             .service(web::resource("/token").route(web::get().to(login::get_token)))

@@ -205,3 +205,9 @@ pub async fn oauth(
         .header(header::LOCATION, "/user")
         .finish())
 }
+
+pub async fn get_oauth2(config: web::Data<Config>) -> HttpResponse {
+    HttpResponse::Ok().json(serde_json::json!({
+        "url" : config.oauth2_url,
+    }))
+}
