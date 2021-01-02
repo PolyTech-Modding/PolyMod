@@ -76,8 +76,10 @@ pub struct ModJsonData {
     authors: Vec<String>,
     documentation: Option<String>, // URL
     readme: Option<String>,        // the readme contents
+    readme_filename: Option<String>,        // the readme file name
+    license: Option<String>,       // OSI Licence
+    license_filename: Option<String>,       // OSI Licence file
     homepage: Option<String>,      // URL
-    license: Option<String>,       // OSI Licence or text for license-file
     #[serde(default)]
     keywords: Vec<String>,
     #[serde(default)]
@@ -258,34 +260,6 @@ pub async fn upload(
         .map(|i| i.checksum.to_string())
         .collect::<Vec<String>>();
 
-    // FIX: https://github.com/launchbadge/sqlx/issues/298
-
-    //let query = sqlx::query_unchecked!(
-    //    "INSERT INTO mods
-    //    (name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, categories, build_script, dependencies_checksums, metadata, checksum)
-    //    VALUES
-    //    ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12::categories[], $13, $14, $15, $16)",
-    //    &data.name,
-    //    &data.version,
-    //    &data.description,
-    //    data.repository_git,
-    //    data.repository_hg,
-    //    &data.authors,
-    //    data.documentation,
-    //    data.readme,
-    //    data.homepage,
-    //    data.license,
-    //    &data.keywords,
-    //    &data.categories,
-    //    //CategoriesList(data.categories.clone()) as _,
-    //    data.build_script,
-    //    &dependencies_checksums,
-    //    &data.metadata,
-    //    &checksum,
-    //    )
-    //    .execute(db)
-    //    .await;
-
     let user = sqlx::query!(
         "SELECT user_id, roles FROM tokens WHERE token = $1",
         req.headers()
@@ -342,11 +316,13 @@ pub async fn upload(
     }
 
     // TODO: if this fails, clear previous sql work done.
+    // FIX: https://github.com/launchbadge/sqlx/issues/298
+
     let query = sqlx::query!(
         "INSERT INTO mods
-        (name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, build_script, dependencies_checksums, metadata, checksum)
+        (name, version, description, repository_git, repository_hg, authors, documentation, readme, readme_filename, license, license_filename, homepage, keywords, build_script, dependencies_checksums, metadata, checksum)
         VALUES
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
         &data.name,
         &data.version,
         &data.description,
@@ -355,8 +331,10 @@ pub async fn upload(
         &data.authors,
         data.documentation,
         data.readme,
-        data.homepage,
+        data.readme_filename,
         data.license,
+        data.license_filename,
+        data.homepage,
         &data.keywords,
         data.build_script,
         &dependencies_checksums,

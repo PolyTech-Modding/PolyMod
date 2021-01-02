@@ -1,5 +1,33 @@
 {
   "db": "PostgreSQL",
+  "1623f0de2850d0a9619078a202ceca6c5c82dab8fc1d259acb803b25c7f1b23b": {
+    "query": "INSERT INTO mods\n        (name, version, description, repository_git, repository_hg, authors, documentation, readme, readme_filename, license, license_filename, homepage, keywords, build_script, dependencies_checksums, metadata, checksum)\n        VALUES\n        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "Text",
+          "TextArray",
+          "Text",
+          "VarcharArray",
+          "TextArray",
+          "Varchar"
+        ]
+      },
+      "nullable": []
+    }
+  },
   "18f35bd2b371b7fa0f38301c50aba938de2a5f9cd1f0b4baeaafdd6697456383": {
     "query": "INSERT INTO tokens (user_id, email, token) VALUES ($1, $2, $3)",
     "describe": {
@@ -244,32 +272,6 @@
       "nullable": []
     }
   },
-  "8091e2d170ce9ff8e4799b74753c3501cff07227fc7039208618c2c1b6a762f1": {
-    "query": "INSERT INTO mods\n        (name, version, description, repository_git, repository_hg, authors, documentation, readme, homepage, license, keywords, build_script, dependencies_checksums, metadata, checksum)\n        VALUES\n        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Text",
-          "Text",
-          "Text",
-          "Text",
-          "Text",
-          "TextArray",
-          "Text",
-          "Text",
-          "Text",
-          "Text",
-          "TextArray",
-          "Text",
-          "VarcharArray",
-          "TextArray",
-          "Varchar"
-        ]
-      },
-      "nullable": []
-    }
-  },
   "81e92710f1cc388f055323db9e295e585cfd08c6d27e4dfda004f79e83179636": {
     "query": "SELECT user_id, roles FROM tokens WHERE token = $1",
     "describe": {
@@ -330,53 +332,8 @@
       "nullable": []
     }
   },
-  "d01b9ff33062b1ed9487d5feb4e35b82cdce3c123bbd0223f2e8303990b9cb23": {
-    "query": "SELECT mod_name FROM owners WHERE user_id = $1 AND mod_name = $2",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "mod_name",
-          "type_info": "Text"
-        }
-      ],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Text"
-        ]
-      },
-      "nullable": [
-        false
-      ]
-    }
-  },
-  "d2299a5e14a02eab7f364b2adb5bcadf32cd69d426e6d8807432effb1c97d754": {
-    "query": "UPDATE mods SET verification = 'Manual' WHERE checksum = $1",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "e1d435e64b9533239d2e224b7a01e0ae9224515357be239c86e31a6e1d96eee1": {
-    "query": "UPDATE mods SET downloads = downloads + 1 WHERE checksum = $1",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Text"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "ef9e49f4e1ce084efb13cd9522d5fa7a42fb1122e9426b9224db957a3f570e35": {
-    "query": "\n        SELECT\n            checksum,\n            name,\n            version,\n            description,\n            repository_git,\n            repository_hg,\n            authors,\n            documentation,\n            readme,\n            homepage,\n            license,\n            keywords,\n            build_script,\n            native_lib_checksums,\n            dependencies_checksums,\n            metadata,\n            verification as \"verification: Verification\",\n            downloads,\n            uploaded\n        FROM\n            mods\n        WHERE\n            name = $1\n        ",
+  "a02841d4e7491d379c29e25cffa7119a0cd111f7aa6331f84647591736a4e605": {
+    "query": "\n        SELECT\n            checksum,\n            name,\n            version,\n            description,\n            repository_git,\n            repository_hg,\n            authors,\n            documentation,\n            readme,\n            readme_filename,\n            license,\n            license_filename,\n            homepage,\n            keywords,\n            build_script,\n            native_lib_checksums,\n            dependencies_checksums,\n            metadata,\n            verification as \"verification: Verification\",\n            downloads,\n            uploaded\n        FROM\n            mods\n        WHERE\n            name = $1\n        ",
     "describe": {
       "columns": [
         {
@@ -426,7 +383,7 @@
         },
         {
           "ordinal": 9,
-          "name": "homepage",
+          "name": "readme_filename",
           "type_info": "Text"
         },
         {
@@ -436,31 +393,41 @@
         },
         {
           "ordinal": 11,
-          "name": "keywords",
-          "type_info": "TextArray"
+          "name": "license_filename",
+          "type_info": "Text"
         },
         {
           "ordinal": 12,
-          "name": "build_script",
+          "name": "homepage",
           "type_info": "Text"
         },
         {
           "ordinal": 13,
-          "name": "native_lib_checksums",
+          "name": "keywords",
           "type_info": "TextArray"
         },
         {
           "ordinal": 14,
-          "name": "dependencies_checksums",
-          "type_info": "VarcharArray"
+          "name": "build_script",
+          "type_info": "Text"
         },
         {
           "ordinal": 15,
-          "name": "metadata",
+          "name": "native_lib_checksums",
           "type_info": "TextArray"
         },
         {
           "ordinal": 16,
+          "name": "dependencies_checksums",
+          "type_info": "VarcharArray"
+        },
+        {
+          "ordinal": 17,
+          "name": "metadata",
+          "type_info": "TextArray"
+        },
+        {
+          "ordinal": 18,
           "name": "verification: Verification",
           "type_info": {
             "Custom": {
@@ -477,12 +444,12 @@
           }
         },
         {
-          "ordinal": 17,
+          "ordinal": 19,
           "name": "downloads",
           "type_info": "Int8"
         },
         {
-          "ordinal": 18,
+          "ordinal": 20,
           "name": "uploaded",
           "type_info": "Timestamptz"
         }
@@ -510,9 +477,56 @@
         true,
         true,
         true,
+        true,
+        true,
         false,
         false
       ]
+    }
+  },
+  "d01b9ff33062b1ed9487d5feb4e35b82cdce3c123bbd0223f2e8303990b9cb23": {
+    "query": "SELECT mod_name FROM owners WHERE user_id = $1 AND mod_name = $2",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "mod_name",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "d2299a5e14a02eab7f364b2adb5bcadf32cd69d426e6d8807432effb1c97d754": {
+    "query": "UPDATE mods SET verification = 'Manual' WHERE checksum = $1",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "e1d435e64b9533239d2e224b7a01e0ae9224515357be239c86e31a6e1d96eee1": {
+    "query": "UPDATE mods SET downloads = downloads + 1 WHERE checksum = $1",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": []
     }
   },
   "fc70b601eee3bad876b6f9b0d5c9f3bf8121b0a00196f9931288b80e78581794": {

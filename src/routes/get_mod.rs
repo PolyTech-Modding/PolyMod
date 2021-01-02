@@ -44,9 +44,13 @@ pub struct GetModsResponse {
     #[serde(skip_serializing_if = "Option::is_none")]
     readme: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    homepage: Option<String>,
+    readme_filename: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     license: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    license_filename: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    homepage: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     keywords: Option<Vec<String>>,
     //#[serde(skip_serializing_if = "Option::is_none")]
@@ -72,8 +76,10 @@ pub async fn get_mods_data(data: &QueryModInfo, pool: &PgPool) -> ServiceResult<
             authors,
             documentation,
             readme,
-            homepage,
+            readme_filename,
             license,
+            license_filename,
+            homepage,
             keywords,
             build_script,
             native_lib_checksums,
@@ -139,8 +145,10 @@ pub async fn get_mods_data(data: &QueryModInfo, pool: &PgPool) -> ServiceResult<
                         authors: values.authors,
                         documentation: values.documentation,
                         readme: values.readme,
-                        homepage: values.homepage,
+                        readme_filename: values.readme_filename,
                         license: values.license,
+                        license_filename: values.license_filename,
+                        homepage: values.homepage,
                         keywords: values.keywords,
                         build_script: values.build_script,
                         metadata: values.metadata,
@@ -178,8 +186,10 @@ pub async fn get_mods_data(data: &QueryModInfo, pool: &PgPool) -> ServiceResult<
                     authors: values.authors,
                     documentation: values.documentation,
                     readme: values.readme,
-                    homepage: values.homepage,
+                    readme_filename: values.readme_filename,
                     license: values.license,
+                    license_filename: values.license_filename,
+                    homepage: values.homepage,
                     keywords: values.keywords,
                     build_script: values.build_script,
                     metadata: values.metadata,
