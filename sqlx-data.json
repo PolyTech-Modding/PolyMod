@@ -42,6 +42,56 @@
       "nullable": []
     }
   },
+  "1db4065ed7981debe60ee823827adb506fa6a4ee5f8be3cdd97c7ca02740d4d5": {
+    "query": "SELECT * FROM tokens WHERE token = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "token",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "is_banned",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 5,
+          "name": "roles",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "260b679b63d8ca1def06e6d45bb53bda4f549862fae43cf4a2bcfb7f385028bd": {
     "query": "SELECT verification as \"verification: Verification\" FROM mods WHERE checksum = $1",
     "describe": {
@@ -270,6 +320,56 @@
         ]
       },
       "nullable": []
+    }
+  },
+  "6077dd708e667e8f8ab636caab163d8bdb9a677289a4776f272290d5f4339d6d": {
+    "query": "SELECT * FROM tokens WHERE user_id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "user_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "token",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "is_banned",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 5,
+          "name": "roles",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
     }
   },
   "81e92710f1cc388f055323db9e295e585cfd08c6d27e4dfda004f79e83179636": {
