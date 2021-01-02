@@ -74,12 +74,12 @@ pub struct ModJsonData {
 
     #[serde(default)]
     authors: Vec<String>,
-    documentation: Option<String>, // URL
-    readme: Option<String>,        // the readme contents
-    readme_filename: Option<String>,        // the readme file name
-    license: Option<String>,       // OSI Licence
-    license_filename: Option<String>,       // OSI Licence file
-    homepage: Option<String>,      // URL
+    documentation: Option<String>,    // URL
+    readme: Option<String>,           // the readme contents
+    readme_filename: Option<String>,  // the readme file name
+    license: Option<String>,          // OSI Licence
+    license_filename: Option<String>, // OSI Licence file
+    homepage: Option<String>,         // URL
     #[serde(default)]
     keywords: Vec<String>,
     #[serde(default)]

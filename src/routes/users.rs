@@ -89,7 +89,7 @@ pub async fn me(
                     token: data.token.to_string(),
                 };
 
-                return Ok(HttpResponse::Ok().json(data))
+                return Ok(HttpResponse::Ok().json(data));
             }
 
             return Ok(HttpResponse::NoContent().finish());
