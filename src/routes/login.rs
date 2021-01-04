@@ -1,5 +1,6 @@
 use crate::error::*;
 use crate::model::*;
+use crate::routes::users::get_user_data;
 use crate::utils::tokens::gen_token;
 
 use actix_identity::Identity;
@@ -27,8 +28,9 @@ pub async fn index(
 ) -> HttpResponse {
     let mut conn = redis.get().await;
 
-    if let Some(token) = id.identity() {
-        if conn.get(&token).await.unwrap().is_some() {
+    if let Some(user_id) = id.identity() {
+        if let Ok(Some(token)) = conn.get(&user_id).await {
+            let token = String::from_utf8(token).unwrap();
             let client = reqwest::Client::new();
             let user = client
                 .get(&format!("{}/users/@me", API_ENDPOINT))
@@ -64,8 +66,8 @@ pub async fn login(
 ) -> HttpResponse {
     let mut conn = redis.get().await;
 
-    if let Some(token) = id.identity() {
-        if conn.get(&token).await.unwrap().is_some() {
+    if let Some(user_id) = id.identity() {
+        if let Ok(Some(_token)) = conn.get(&user_id).await {
             return HttpResponse::Found()
                 .header(header::LOCATION, "/user")
                 .finish();
@@ -88,22 +90,14 @@ pub async fn get_token(
     redis: web::Data<ConnectionPool>,
     db: web::Data<PgPool>,
     config: web::Data<Config>,
-) -> HttpResponse {
+) -> ServiceResult<HttpResponse> {
     let pool = &**db;
     let mut conn = redis.get().await;
 
-    if let Some(token) = id.identity() {
-        if conn.get(&token).await.unwrap().is_some() {
-            let client = reqwest::Client::new();
-            let user = client
-                .get(&format!("{}/users/@me", API_ENDPOINT))
-                .bearer_auth(&token)
-                .send()
-                .await
-                .unwrap()
-                .json::<UserResponse>()
-                .await
-                .unwrap();
+    if let Some(user_id) = id.identity() {
+        if let Ok(Some(token)) = conn.get(&user_id).await {
+            let token = String::from_utf8(token).unwrap();
+            let user = get_user_data(&token).await?;
 
             let query = sqlx::query!(
                 "SELECT token, is_banned FROM tokens WHERE user_id = $1 AND email = $2",
@@ -116,9 +110,9 @@ pub async fn get_token(
 
             if let Some(data) = query {
                 if data.is_banned {
-                    return HttpResponse::Ok().body("Account has been banned.");
+                    return Ok(HttpResponse::Ok().body("Account has been banned."));
                 } else {
-                    return HttpResponse::Ok().body(data.token);
+                    return Ok(HttpResponse::Ok().body(data.token));
                 }
             } else {
                 let token = gen_token(
@@ -139,19 +133,21 @@ pub async fn get_token(
                 .await
                 .unwrap();
 
-                return HttpResponse::Ok().body(token);
+                return Ok(HttpResponse::Ok().body(token));
             }
         }
     }
 
-    HttpResponse::Ok().body("null")
+    Ok(HttpResponse::Ok().body("null"))
 }
 
 pub async fn logout(id: Identity, redis: web::Data<ConnectionPool>) -> HttpResponse {
-    if let Some(token) = id.identity() {
+    if let Some(user_id) = id.identity() {
         let mut conn = redis.get().await;
 
-        let _ = conn.del(token).await;
+        if let Err(why) = conn.del(user_id).await {
+            error!("Error deleting cookie: {}", why);
+        }
     }
 
     id.forget();
@@ -167,6 +163,7 @@ pub async fn oauth(
     config: web::Data<Config>,
 ) -> ServiceResult<HttpResponse> {
     let code = code.code.to_string();
+    let mut conn = redis.get().await;
 
     let client_id = config.client_id;
     let client_secret = config.client_secret.to_string();
@@ -195,9 +192,10 @@ pub async fn oauth(
         Err(why) => return Err(ServiceError::BadRequest(why.to_string())),
     };
 
-    id.remember(resp.access_token.to_string());
-    let mut conn = redis.get().await;
-    conn.set_and_expire_seconds(&resp.access_token, &resp.refresh_token, resp.expires_in)
+    let user = get_user_data(&resp.access_token).await?;
+
+    id.remember(user.id.to_string());
+    conn.set_and_expire_seconds(&user.id.to_string(), &resp.access_token, resp.expires_in)
         .await
         .unwrap();
 

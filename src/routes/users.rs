@@ -17,25 +17,32 @@ pub struct MeResponseData {
     token: String,
 }
 
+pub async fn get_user_data(token: &str) -> ServiceResult<UserResponse> {
+    let client = reqwest::Client::new();
+    let user = client
+        .get(&format!("{}/users/@me", API_ENDPOINT))
+        .bearer_auth(&token)
+        .send()
+        .await
+        .unwrap()
+        .json::<UserResponse>()
+        .await
+        .unwrap();
+
+    Ok(user)
+}
+
 pub async fn index(
     id: Identity,
     hb: web::Data<Handlebars<'_>>,
     redis: web::Data<ConnectionPool>,
-) -> HttpResponse {
+) -> ServiceResult<HttpResponse> {
     let mut conn = redis.get().await;
 
-    if let Some(token) = id.identity() {
-        if conn.get(&token).await.unwrap().is_some() {
-            let client = reqwest::Client::new();
-            let user = client
-                .get(&format!("{}/users/@me", API_ENDPOINT))
-                .bearer_auth(&token)
-                .send()
-                .await
-                .unwrap()
-                .json::<UserResponse>()
-                .await
-                .unwrap();
+    if let Some(user_id) = id.identity() {
+        if let Ok(Some(token)) = conn.get(&user_id).await {
+            let token = String::from_utf8(token).unwrap();
+            let user = get_user_data(&token).await?;
 
             let data = serde_json::json!({
                 "name": user.username,
@@ -44,13 +51,13 @@ pub async fn index(
 
             let body = hb.render("discord_user", &data).unwrap();
 
-            return HttpResponse::Ok().body(body);
+            return Ok(HttpResponse::Ok().body(body));
         }
     }
 
-    HttpResponse::Found()
+    Ok(HttpResponse::Found()
         .header(header::LOCATION, "/login")
-        .finish()
+        .finish())
 }
 
 pub async fn me(
@@ -62,18 +69,10 @@ pub async fn me(
     let pool = &**db;
     let mut conn = redis.get().await;
 
-    if let Some(token) = id.identity() {
-        if conn.get(&token).await.unwrap().is_some() {
-            let client = reqwest::Client::new();
-            let user = client
-                .get(&format!("{}/users/@me", API_ENDPOINT))
-                .bearer_auth(&token)
-                .send()
-                .await
-                .unwrap()
-                .json::<UserResponse>()
-                .await
-                .unwrap();
+    if let Some(user_id) = id.identity() {
+        if let Ok(Some(token)) = conn.get(&user_id).await {
+            let token = String::from_utf8(token).unwrap();
+            let user = get_user_data(&token).await?;
 
             let query = sqlx::query!("SELECT * FROM tokens WHERE user_id = $1", user.id as i64)
                 .fetch_optional(pool)
