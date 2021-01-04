@@ -15,6 +15,8 @@ pub struct MeResponseData {
     user_id: u64,
     is_banned: bool,
     token: String,
+
+    discord: UserResponse,
 }
 
 pub async fn get_user_data(token: &str) -> ServiceResult<UserResponse> {
@@ -85,6 +87,7 @@ pub async fn me(
                     user_id: data.user_id as u64,
                     is_banned: data.is_banned,
                     token: data.token.to_string(),
+                    discord: user,
                 };
 
                 return Ok(HttpResponse::Ok().json(data));
@@ -102,20 +105,26 @@ pub async fn me(
             .await?;
 
         if let Some(data) = query {
-            let roles = Roles::from_bits_truncate(data.roles as u32);
+            if let Ok(Some(oauth_token)) = conn.get(&data.user_id.to_string()).await {
+                let user = get_user_data(&String::from_utf8(oauth_token).unwrap()).await?;
+                let roles = Roles::from_bits_truncate(data.roles as u32);
 
-            let data = MeResponseData {
-                roles: roles.bits(),
-                user_id: data.user_id as u64,
-                is_banned: data.is_banned,
-                token: token.to_string(),
-            };
+                let data = MeResponseData {
+                    roles: roles.bits(),
+                    user_id: data.user_id as u64,
+                    is_banned: data.is_banned,
+                    token: token.to_string(),
+                    discord: user,
+                };
 
-            Ok(HttpResponse::Ok().json(data))
-        } else {
-            Ok(HttpResponse::NoContent().finish())
+                return Ok(HttpResponse::Ok().json(data));
+            } else {
+                return Ok(HttpResponse::BadRequest().json(serde_json::json!({
+                    "error": "OAuth2 Session Expired"
+                })));
+            }
         }
-    } else {
-        Ok(HttpResponse::NoContent().finish())
     }
+
+    Ok(HttpResponse::NoContent().finish())
 }
