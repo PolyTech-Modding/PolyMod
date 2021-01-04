@@ -25,22 +25,13 @@ pub async fn index(
     id: Identity,
     hb: web::Data<Handlebars<'_>>,
     redis: web::Data<ConnectionPool>,
-) -> HttpResponse {
+) -> ServiceResult<HttpResponse> {
     let mut conn = redis.get().await;
 
     if let Some(user_id) = id.identity() {
         if let Ok(Some(token)) = conn.get(&user_id).await {
             let token = String::from_utf8(token).unwrap();
-            let client = reqwest::Client::new();
-            let user = client
-                .get(&format!("{}/users/@me", API_ENDPOINT))
-                .bearer_auth(&token)
-                .send()
-                .await
-                .unwrap()
-                .json::<UserResponse>()
-                .await
-                .unwrap();
+            let user = get_user_data(&token).await?;
 
             let data = serde_json::json!({
                 "name": user.username,
@@ -49,13 +40,13 @@ pub async fn index(
 
             let body = hb.render("discord_user", &data).unwrap();
 
-            return HttpResponse::Ok().body(body);
+            return Ok(HttpResponse::Ok().body(body));
         }
     }
 
-    HttpResponse::Found()
+    Ok(HttpResponse::Found()
         .header(header::LOCATION, "/login")
-        .finish()
+        .finish())
 }
 
 pub async fn login(
@@ -179,18 +170,13 @@ pub async fn oauth(
     };
 
     let client = reqwest::Client::new();
-    let resp = match client
+    let resp = client
         .post(&format!("{}/oauth2/token", API_ENDPOINT))
         .form(&data)
         .send()
-        .await
-        .unwrap()
+        .await?
         .json::<OAuthResponse>()
-        .await
-    {
-        Ok(x) => x,
-        Err(why) => return Err(ServiceError::BadRequest(why.to_string())),
-    };
+        .await?;
 
     let user = get_user_data(&resp.access_token).await?;
 

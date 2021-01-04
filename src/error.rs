@@ -12,6 +12,7 @@ pub enum ServiceError {
     InternalServerError(String),
     Unauthorized,
     NoContent,
+    Timeout,
 }
 
 impl Error for ServiceError {}
@@ -31,6 +32,7 @@ impl ResponseError for ServiceError {
             }
             ServiceError::Unauthorized => HttpResponse::Unauthorized().body("Unauthorized"),
             ServiceError::NoContent => HttpResponse::NoContent().finish(),
+            ServiceError::Timeout => HttpResponse::RequestTimeout().finish(),
         }
     }
 }
@@ -74,5 +76,23 @@ impl From<sqlx::Error> for ServiceError {
 impl From<serde_json::Error> for ServiceError {
     fn from(err: serde_json::Error) -> ServiceError {
         ServiceError::InternalServerError(err.to_string())
+    }
+}
+
+impl From<reqwest::Error> for ServiceError {
+    fn from(err: reqwest::Error) -> ServiceError {
+        error!("Error happened with Reqwests: {}", err);
+
+        if err.is_status() {
+            ServiceError::InternalServerError("Bad Status Received".into())
+        } else if err.is_timeout() {
+            ServiceError::Timeout
+        } else if err.is_connect() {
+            ServiceError::InternalServerError("Unable to connect to remote server".into())
+        } else if err.is_decode() {
+            ServiceError::InternalServerError("Failed to decode response from remote server".into())
+        } else {
+            ServiceError::InternalServerError("Unhandled Remote Server error has happened".into())
+        }
     }
 }

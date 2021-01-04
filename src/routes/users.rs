@@ -19,15 +19,14 @@ pub struct MeResponseData {
 
 pub async fn get_user_data(token: &str) -> ServiceResult<UserResponse> {
     let client = reqwest::Client::new();
+
     let user = client
         .get(&format!("{}/users/@me", API_ENDPOINT))
         .bearer_auth(&token)
         .send()
-        .await
-        .unwrap()
+        .await?
         .json::<UserResponse>()
-        .await
-        .unwrap();
+        .await?;
 
     Ok(user)
 }
