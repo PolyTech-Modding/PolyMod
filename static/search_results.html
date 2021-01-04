@@ -105,10 +105,16 @@
             </li>
 
           </ul>
-          <button hidden class="btn btn-dark">
+          <button id="login_button" class="btn btn-dark mx-2" onclick="window.location.href = '/login'">
             <span class="align-middle">
               <img class="m-1" src="/static/Discord-Logo-White.svg" style="width:32px;height:32px;">Login with Discord
             </span>
+          </button>
+          <button hidden id="user_button" class="btn btn-dark mx-2" onclick="window.location.href = '/profile'">
+            username goes here
+          </button>
+          <button hidden id="logout_button" class="btn btn-danger mx-2" onclick="window.location.href = '/logout'">
+            Logout
           </button>
         </div>
       </div>
@@ -161,9 +167,6 @@
       </div>
     </div>
 
-    <nav aria-label="...">
-      <ul id="pages" class="pagination justify-content-center m-3"></ul>
-    </nav>
     <script src="/static/util.js"></script>
 
     <script defer src="/static/search.js"></script>
