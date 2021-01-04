@@ -21,4 +21,12 @@
 - #0fbb959 Per page threshold increased to 30 to avoid rate limits - @nitsuga5124
 - #7fe3433 Formatted all the code consistently - @nitsuga5124
 - #4e6a81d #b7d516b Added documentation for things - @nitsuga5124
-- ...
+- #ce69854 Removed data_string - @nitsuga5124
+- #b620723 Added a way to get the oauth2 url - @nitsuga5124
+- #8a98b6e Added readme and license filenames to get_mod. - @nitsuga5124
+- #648ed16 Added `/me` - @nitsuga5124
+- #d08036a Reworked cookies to have the key be the user id - @nitsuga5124
+- #a8b4df2 Added impl for reqwest::Error - @nitsuga5124
+- #596eea0 Added discord information to `/me` - @nitsuga5124
+- #74ef62c Added user id as a string in `/me` - nitsuga5124
+- #86addbd Changed the login redirects to home - @Conqu3red
