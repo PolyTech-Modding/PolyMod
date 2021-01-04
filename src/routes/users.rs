@@ -13,6 +13,7 @@ use sqlx::postgres::PgPool;
 pub struct MeResponseData {
     roles: u32,
     user_id: u64,
+    user_id_string: String,
     is_banned: bool,
     token: String,
 
@@ -85,6 +86,7 @@ pub async fn me(
                 let data = MeResponseData {
                     roles: roles.bits(),
                     user_id: data.user_id as u64,
+                    user_id_string: data.user_id.to_string(),
                     is_banned: data.is_banned,
                     token: data.token.to_string(),
                     discord: user,
@@ -112,6 +114,7 @@ pub async fn me(
                 let data = MeResponseData {
                     roles: roles.bits(),
                     user_id: data.user_id as u64,
+                    user_id_string: data.user_id.to_string(),
                     is_banned: data.is_banned,
                     token: token.to_string(),
                     discord: user,
