@@ -121,12 +121,17 @@ function setNavbarButtons(){
     		}
         
     		response.json().then(function (json_data) {
-                console.log(json_data)
+                //console.log(json_data)
                 data = json_data
                 Roles.Roles = json_data.roles.toString(2).padStart(8, 0)
     			document.getElementById("login_button").setAttribute("hidden", true)
     			document.getElementById("logout_button").removeAttribute("hidden")
                 document.getElementById("user_button").removeAttribute("hidden")
+                document.getElementById("user_button").innerHTML = `
+                    <span class="">
+                        <img class="me-2" src="https://cdn.discordapp.com/avatars/${json_data.user_id_string}/${json_data.discord.avatar}.png?size=256" style='width: 32px; height: 32px;'>
+                        ${json_data.discord.username}
+                    </span>`
                 
                 mod_options = document.getElementById("mod_options")
                 if (Roles.hasRole("VERIFYER") && mod_options != null){
