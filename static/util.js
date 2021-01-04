@@ -89,3 +89,56 @@ var safetext = function (text) {
         return "&" + table[chr] + ";";
     });
 };
+const Roles = {
+    Roles    : "00000000",
+    OWNER    : "00000001",
+    ADMIN    : "00000010",
+    MOD      : "00000100",
+    VERIFYER : "00001000",
+    MAPPER   : "00010000",
+    BOT      : "00100000",
+    hasRole(role){
+        if (!Roles.hasOwnProperty(role)) return false
+        for (i = 0; i < 8; i++){
+            if (this[role][i] == 1 && this.Roles[i] == 1) return true
+        }
+        return false
+    }
+}
+var data
+function setNavbarButtons(){
+    fetch( "/public_api/me")
+    	.then(function (response) {
+    		if (response.status !== 200){
+    			fetch( "/oauth2_url")
+    				.then(function (response) {
+    					response.json().then(function (json_data) {
+    						document.getElementById("login_button").setAttribute("onclick", `document.location.href = '${json_data.url}'`);
+    					})
+    				}
+    			)
+    			return
+    		}
+        
+    		response.json().then(function (json_data) {
+                //console.log(json_data)
+                data = json_data
+                Roles.Roles = json_data.roles.toString(2).padStart(8, 0)
+    			document.getElementById("login_button").setAttribute("hidden", true)
+    			document.getElementById("logout_button").removeAttribute("hidden")
+                document.getElementById("user_button").removeAttribute("hidden")
+                document.getElementById("user_button").innerHTML = `
+                    <span class="">
+                        <img class="me-2" src="https://cdn.discordapp.com/avatars/${json_data.user_id_string}/${json_data.discord.avatar}.png?size=256" style='width: 32px; height: 32px;'>
+                        ${json_data.discord.username}
+                    </span>`
+                
+                mod_options = document.getElementById("mod_options")
+                if (Roles.hasRole("VERIFYER") && mod_options != null){
+                    mod_options.removeAttribute("hidden")
+                }
+    		})
+    	}
+    )
+}
+setNavbarButtons()
