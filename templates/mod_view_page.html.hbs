@@ -143,9 +143,7 @@
             </div>
           </div>
   
-          <div id="content" class="card-text">{{ data.readme }}</div>
-          <script type="text/javascript" src="static/purify.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+          <div id="content">{{ data.readme }}</div>
         </div>
       </div>
   
@@ -237,6 +235,13 @@
     </script>
     <div id="files" style="display: none">{{#each data.files}}{{ this }}<br>{{/each}}</div>
     <div id="uploaded" style="display: none">{{ data.uploaded }}</div>
+    <div id="readme_filename" style="display: none">{{ data.readme_filename }}</div>
+
+    <script type="text/javascript" src="static/purify.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="text/javascript" src="/static/creole_parser.js"></script>
+    <script type="text/javascript" src="/static/orgmode_parser.js"></script>
+    
     <script defer src="/static/mod_view.js"></script>
   </body>
 </html>

@@ -5,8 +5,30 @@ verif_detail = document.getElementById("verification_level")
 verification_level = verif_detail.innerText
 files = document.getElementById("files").innerHTML.split("<br>")
 uploaded_string = document.getElementById("uploaded").innerText
+
 // set readme
-document.getElementById("content").innerHTML = DOMPurify.sanitize( marked(document.getElementById("content").innerHTML) );
+let readme_filename = document.getElementById("readme_filename").innerText
+if (readme_filename){
+    let contents = document.getElementById("content")
+    let readme = contents.innerHTML
+    if (readme_filename.endsWith(".md")){
+        readme = marked(readme)
+    }
+    if (readme_filename.endsWith(".creole")){
+        var creole = new creole()
+        var div = document.createElement('div');
+        creole.parse(div, readme);
+        readme = div.innerHTML
+    }
+    if (readme_filename.endsWith(".org") || readme_filename.endsWith(".org-mode")){
+        var parser = new Org.Parser();
+        var orgDocument = parser.parse(readme);
+        var orgHTMLDocument = orgDocument.convert(Org.ConverterHTML, {});
+        readme = orgHTMLDocument.toString()
+    }
+    contents.innerHTML = DOMPurify.sanitize( readme );
+}
+
 
 level = verificationProperties.fromVerificationLevel(verification_level);
 
