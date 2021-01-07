@@ -1,0 +1,61 @@
+.tags-input {
+    display: block;
+    width: 100%;
+    padding: .25rem .5rem;
+    font-size: .875rem;
+    font-weight: 400;
+    line-height: 1.5;
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+	border-radius: .25rem;
+	min-height: calc(1.5em + .5rem + 2px);
+    border-radius: .2rem;
+}
+.tags-input .tag {
+    display: inline-block;
+    background: #EEE;
+    color: #444;
+    padding: 0 4px;
+    margin: 2px;
+    border: 1px solid #CCC;
+    border-radius: 2px;
+    font: inherit;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: pointer;
+    transition: all .1s ease;
+}
+.tags-input .tag.selected {
+    background-color: #777;
+    border-color: #777;
+    color: #EEE;
+}
+.tags-input .tag.dupe {
+    -webkit-transform: scale3d(1.2, 1.2, 1.2);
+    transform: scale3d(1.2, 1.2, 1.2);
+    background-color: #FCC;
+    border-color: #700;
+}
+.tags-input input {
+    -webkit-appearance: none!important;
+    -moz-appearance: none!important;
+    appearance: none!important;
+    padding: 3px;
+    margin: 0!important;
+    background: 0 0!important;
+    border: none!important;
+    box-shadow: none!important;
+    font: inherit!important;
+    font-size: 100%!important;
+    outline: 0!important;
+}
+.tags-input .selected~input {
+    opacity: .3;
+}

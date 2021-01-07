@@ -1,3 +1,4 @@
+let $ = (s) => {return document.querySelectorAll(s)}
 const verificationProperties = {
     Core: {
         badge: '<span class="badge bg-primary">Core Framework</span>',
@@ -105,40 +106,74 @@ const Roles = {
         return false
     }
 }
-var data
-function setNavbarButtons(){
-    fetch( "/public_api/me")
-    	.then(function (response) {
-    		if (response.status !== 200){
-    			fetch( "/oauth2_url")
-    				.then(function (response) {
-    					response.json().then(function (json_data) {
-    						document.getElementById("login_button").setAttribute("onclick", `document.location.href = '${json_data.url}'`);
-    					})
-    				}
-    			)
-    			return
-    		}
-        
-    		response.json().then(function (json_data) {
-                //console.log(json_data)
-                data = json_data
-                Roles.Roles = json_data.roles.toString(2).padStart(8, 0)
-    			document.getElementById("login_button").setAttribute("hidden", true)
-    			document.getElementById("logout_button").removeAttribute("hidden")
-                document.getElementById("user_button").removeAttribute("hidden")
-                document.getElementById("user_button").innerHTML = `
-                    <span class="">
-                        <img class="me-2" src="https://cdn.discordapp.com/avatars/${json_data.user_id_string}/${json_data.discord.avatar}.png?size=256" style='width: 32px; height: 32px;'>
-                        ${json_data.discord.username}
-                    </span>`
-                
-                mod_options = document.getElementById("mod_options")
-                if (Roles.hasRole("VERIFYER") && mod_options != null){
-                    mod_options.removeAttribute("hidden")
-                }
-    		})
-    	}
-    )
+var data, user_data, oauth2_url, logged_in
+function initialize(){
+    //localStorage.me
+    //localStorage.oauth2_url
+    //localStorage.logged_in
+    
+    if (localStorage.me){ // if user_data is cached
+        setup(JSON.parse(localStorage.me))
+    }
+    else { // if not cached, fetch user data
+        fetch( "/public_api/me")
+        	.then(function (response) {
+        		if (response.status !== 200){
+                    localStorage.logged_in = false
+                    return
+        		}
+            
+        		response.json().then(function (json_data) {
+                    //console.log(json_data)
+                    localStorage.logged_in = true
+                    localStorage.me = JSON.stringify(json_data)
+                    setup(json_data)
+        		})
+        	}
+        )
+    }
+    
+    if (localStorage.logged_in == "false"){
+        if (!localStorage.oauth2_url){
+            fetch("/oauth2_url")
+            	.then(function (response) {
+            		response.json().then(function (res) {
+                        console.log(res)
+                        localStorage.oauth2_url = res.url
+                        document.getElementById("login_button").setAttribute("onclick", `document.location.href = '${localStorage.oauth2_url}'`);
+            		})
+            	}
+            )
+        }
+        else {
+            document.getElementById("login_button").setAttribute("onclick", `document.location.href = '${localStorage.oauth2_url}'`);
+        }
+    }
 }
-setNavbarButtons()
+
+function setup(json_data){
+    data = json_data
+    Roles.Roles = json_data.roles.toString(2).padStart(8, 0)
+    document.getElementById("login_button").setAttribute("hidden", true)
+    document.getElementById("logout_button").removeAttribute("hidden")
+    document.getElementById("upload_mods_nav_item").removeAttribute("hidden")
+    document.getElementById("logout_button").setAttribute("onclick", `localStorage.clear(); window.location.href = '/logout'`)
+    document.getElementById("user_button").removeAttribute("hidden")
+    document.getElementById("user_button").innerHTML = `
+        <span class="">
+            <img class="me-2" src="https://cdn.discordapp.com/avatars/${json_data.user_id_string}/${json_data.discord.avatar}.png?size=256" style='width: 32px; height: 32px;'>
+            ${json_data.discord.username}
+        </span>`
+    
+    mod_options = document.getElementById("mod_options")
+    if (Roles.hasRole("VERIFYER") && mod_options != null){
+        mod_options.removeAttribute("hidden")
+    }
+    let authors = document.getElementById("authors")
+    if (authors) {
+        authors.value = json_data.discord.username
+        $('input[type="tags"]').forEach(tagsInput)
+    }
+}
+
+initialize()
