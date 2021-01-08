@@ -19,7 +19,6 @@
     <title>PolyTech Modding Prototype</title>
   </head>
   <body>
-    <script src="/static/util.js"></script>
     <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
       <div class="container-fluid">
         <a class="navbar-brand pt-1" href="/">
@@ -94,6 +93,9 @@
             <li class="nav-item">
               <a class="nav-link" href="/search">Mods</a>
             </li>
+            <li id="upload_mods_nav_item" class="nav-item" hidden>
+              <a class="nav-link" href="/submit">Upload Mods</a>
+            </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Core Frameworks
@@ -105,7 +107,7 @@
             </li>
 
           </ul>
-          <button id="login_button" class="btn btn-dark mx-2" onclick="window.location.href = '/login'">
+          <button id="login_button" class="btn btn-dark mx-2">
             <span class="align-middle">
               <img class="m-1" src="/static/Discord-Logo-White.svg" style="width:32px;height:32px;">Login with Discord
             </span>
@@ -143,9 +145,7 @@
             </div>
           </div>
   
-          <div id="content" class="card-text">{{ data.readme }}</div>
-          <script type="text/javascript" src="static/purify.min.js"></script>
-          <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+          <div id="content">{{ data.readme }}</div>
         </div>
       </div>
   
@@ -237,6 +237,13 @@
     </script>
     <div id="files" style="display: none">{{#each data.files}}{{ this }}<br>{{/each}}</div>
     <div id="uploaded" style="display: none">{{ data.uploaded }}</div>
+    <div id="readme_filename" style="display: none">{{ data.readme_filename }}</div>
+    <script src="/static/util.js"></script>
+    <script type="text/javascript" src="static/purify.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script type="text/javascript" src="/static/creole_parser.js"></script>
+    <script type="text/javascript" src="/static/orgmode_parser.js"></script>
+    
     <script defer src="/static/mod_view.js"></script>
   </body>
 </html>

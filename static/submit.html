@@ -94,6 +94,9 @@
             <li class="nav-item">
               <a class="nav-link" href="/search">Mods</a>
             </li>
+            <li id="upload_mods_nav_item" class="nav-item" hidden>
+              <a class="nav-link" href="/submit">Upload Mods</a>
+            </li>
             <li class="nav-item dropdown">
               <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                 Core Frameworks
@@ -105,70 +108,214 @@
             </li>
 
           </ul>
-          <button hidden class="btn btn-dark">
+          <button id="login_button" class="btn btn-dark mx-2">
             <span class="align-middle">
               <img class="m-1" src="/static/Discord-Logo-White.svg" style="width:32px;height:32px;">Login with Discord
             </span>
           </button>
+          <button hidden id="user_button" class="btn btn-dark mx-2" onclick="window.location.href = '/profile'">
+            username goes here
+          </button>
+          <button hidden id="logout_button" class="btn btn-danger mx-2" onclick="window.location.href = '/logout'">
+            Logout
+          </button>
         </div>
       </div>
     </nav>
-    <form class="m-4">
-      <div class="mb-3 row">
-        <label for="inputPassword" class="col-sm-2 col-form-label">Mod Name</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="name" placeholder="example mod">
-        </div>
+    <div id="alerts"></div>
+    <form class="mx-4 needs-validation" novalidate id="uploadForm">
+      <style>
+        .required label:after {
+          color: #e32;
+          content: ' *';
+        }
+      </style>
+      <br>
+      <div class="mb-3 required">
+        <label for="name" class="form-label">Mod Name</label>
+        <input required type="text" class="form-control form-control-sm" id="name" name="name" placeholder="example mod">
       </div>
-      <div class="mb-3 row">
-        <label for="inputPassword" class="col-sm-2 col-form-label">Version</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="version" placeholder="0.0.1-alpha.0">
-        </div>
+      
+      <div class="mb-3 required">
+        <label for="version" class="form-label">Version</label>
+        <input required type="text" class="form-control form-control-sm" id="version" name="version" placeholder="0.0.1-alpha.0">
       </div>
-      <div class="mb-3 row">
-        <label for="inputPassword" class="col-sm-2 col-form-label">Description</label>
-        <div class="col-sm-10">
-          <textarea type="text" class="form-control" id="description" placeholder="A brief description of the mod"></textarea>
-        </div>
+      
+      <div class="mb-3 required">
+        <label for="description" class="form-label">Description</label>
+        <textarea required type="text" class="form-control form-control-sm" id="description" name="description" placeholder="A brief description of the mod"></textarea>
       </div>
-      <div class="mb-3 row">
-        <label for="inputPassword" class="col-sm-2 col-form-label">Repository Git</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="version" placeholder="http://example.com/example.git">
-        </div>
-      </div>
-      <div class="mb-3 row">
-        <div class="col-auto">
-          <label class="col-form-label">Authors</label>
-        </div>
-        <div class="col-auto">
-          <input type="text" class="form-control" id="version" placeholder="Author Name">
-        </div>
-        <div class="col-auto">
-          <input type="email" class="form-control" id="version" placeholder="Author Email">
-        </div>
+      
+      <div class="mb-3 required">
+        <label for="git" class="form-label">Repository Git</label>
+        <input required type="url" class="form-control form-control-sm" id="git" name="repository_git" placeholder="http://example.com/example.git">
       </div>
 
-      <div class="mb-3 row">
-        <label for="formFile" class="form-label col-sm-2">Mod Zip File</label>
-        <div class="col-sm-10">
-          <input class="form-control" type="file" id="formFile" accept=".zip">
-        </div>
+      <div class="mb-3 required">
+        <label for="formFile" class="form-label">Mod Zip File</label>
+        <input required class="form-control form-control-sm" type="file" id="formFile" name="formFile" accept=".zip">
       </div>
-      documentation
-      readme
-      homepage
-      license
-      Keywords
-      build_script
-      dependencies
-      metadata
+
+      <div class="mb-3">
+        <label for="documentation" class="form-label">Documentation URL</label>
+        <input type="url" class="form-control form-control-sm" id="documentation" name="documentation" placeholder="http://example.com/docs.md">
+      </div>
+
+      <div class="mb-3">
+        <label for="readmeFile" class="form-label">Readme file</label>
+        <input class="form-control form-control-sm" type="file" id="readmeFile" name="readmeFile" accept=".zip">
+      </div>
+
+      <div class="mb-3">
+        <label for="homepage" class="form-label">Homepage</label>
+        <input type="url" class="form-control form-control-sm" id="homepage" names="homepage" placeholder="http://example.com">
+      </div>
+      <div class="mb-3">
+        <label for="license" class="form-label">
+          License
+          <a title="Choosing A License" href="https://opensource.org/licenses" style="color: black; text-decoration: none;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/>
+          </svg>
+          </a>
+        </label>
+
+        <select name="license" id="license" class="form-select form-control-sm">
+          <option value="">None</option>
+          <option>0-clause BSD License (0BSD)</option>
+          <option>1-clause BSD License (BSD-1-Clause)</option>
+          <option>2-clause BSD License (BSD-2-Clause)</option>
+          <option>3-clause BSD License (BSD-3-Clause)</option>
+          <option>Academic Free License 3.0 (AFL-3.0)</option>
+          <option>Adaptive Public License (APL-1.0)</option>
+          <option>Apache Software License 1.1 (Apache-1.1) (superseded)</option>
+          <option>Apache License 2.0 (Apache-2.0)</option>
+          <option>Apple Public Source License (APSL-2.0)</option>
+          <option>Artistic license 1.0 (Artistic-1.0) (superseded)</option>
+          <option>Artistic License 2.0 (Artistic-2.0)</option>
+          <option>Attribution Assurance License (AAL)</option>
+          <option>Boost Software License (BSL-1.0)</option>
+          <option>BSD+Patent (BSD-2-Clause-Patent)</option>
+          <option>CeCILL License 2.1 (CECILL-2.1)</option>
+          <option>Common Development and Distribution License 1.0 (CDDL-1.0)</option>
+          <option>Common Public Attribution License 1.0 (CPAL-1.0)</option>
+          <option>Common Public License 1.0 (CPL-1.0) (superseded)</option>
+          <option>Computer Associates Trusted Open Source License 1.1 (CATOSL-1.1)</option>
+          <option>Cryptographic Autonomy License v.1.0 (CAL-1.0)</option>
+          <option>Eclipse Public License 1.0 (EPL-1.0) (superseded)</option>
+          <option>Eclipse Public License 2.0 (EPL-2.0)</option>
+          <option>eCos License version 2.0 (eCos-2.0)</option>
+          <option>Educational Community License, Version 1.0 (ECL-1.0) (superseded)</option>
+          <option>Educational Community License, Version 2.0 (ECL-2.0)</option>
+          <option>Eiffel Forum License V1.0 (EFL-1.0) (superseded)</option>
+          <option>Eiffel Forum License V2.0 (EFL-2.0)</option>
+          <option>Entessa Public License (Entessa)</option>
+          <option>EU DataGrid Software License (EUDatagrid)</option>
+          <option>European Union Public License 1.2 (EUPL-1.2) (links to every language's version on their site)</option>
+          <option>Fair License (Fair)</option>
+          <option>Frameworx License (Frameworx-1.0)</option>
+          <option>GNU Affero General Public License version 3 (AGPL-3.0)</option>
+          <option>GNU General Public License version 2 (GPL-2.0)</option>
+          <option>GNU General Public License version 3 (GPL-3.0)</option>
+          <option>GNU Lesser General Public License version 2.1 (LGPL-2.1)</option>
+          <option>GNU Lesser General Public License version 3 (LGPL-3.0)</option>
+          <option>Historical Permission Notice and Disclaimer (HPND)</option>
+          <option>IBM Public License 1.0 (IPL-1.0)</option>
+          <option>IPA Font License (IPA)</option>
+          <option>ISC License (ISC)</option>
+          <option>LaTeX Project Public License 1.3c (LPPL-1.3c)</option>
+          <option>Lawrence Berkeley National Labs BSD Variant License (BSD-3-Clause-LBNL)</option>
+          <option>Licence Libre du Québec – Permissive (LiLiQ-P) version 1.1 (LiliQ-P)</option>
+          <option>Licence Libre du Québec – Réciprocité (LiLiQ-R) version 1.1 (LiliQ-R)</option>
+          <option>Licence Libre du Québec – Réciprocité forte (LiLiQ-R+) version 1.1 (LiliQ-R+)</option>
+          <option>Lucent Public License ("Plan9"), version 1.0 (LPL-1.0) (superseded)</option>
+          <option>Lucent Public License Version 1.02 (LPL-1.02)</option>
+          <option>Microsoft Public License (MS-PL)</option>
+          <option>Microsoft Reciprocal License (MS-RL)</option>
+          <option>MirOS Licence (MirOS)</option>
+          <option>MIT License (MIT)</option>
+          <option>MIT No Attribution License (MIT-0)</option>
+          <option>Motosoto License (Motosoto)</option>
+          <option>Mozilla Public License 1.0 (MPL-1.0) (superseded)</option>
+          <option>Mozilla Public License 1.1 (MPL-1.1) (superseded)</option>
+          <option>Mozilla Public License 2.0 (MPL-2.0)</option>
+          <option>Mulan Permissive Software License v2 (MulanPSL - 2.0)</option>
+          <option>Multics License (Multics)</option>
+          <option>NASA Open Source Agreement 1.3 (NASA-1.3)</option>
+          <option>Naumen Public License (Naumen)</option>
+          <option>Nethack General Public License (NGPL)</option>
+          <option>Nokia Open Source License (Nokia)</option>
+          <option>Non-Profit Open Software License 3.0 (NPOSL-3.0)</option>
+          <option>NTP License (NTP)</option>
+          <option>OCLC Research Public License 2.0 (OCLC-2.0)</option>
+          <option>Open Group Test Suite License (OGTSL)</option>
+          <option>Open Software License 1.0 (OSL-1.0) (superseded)</option>
+          <option>Open Software License 2.1 (OSL-2.1) (superseded)</option>
+          <option>Open Software License 3.0 (OSL-3.0)</option>
+          <option>OpenLDAP Public License Version 2.8 (OLDAP-2.8)</option>
+          <option>OSET Public License version 2.1</option>
+          <option>PHP License 3.0 (PHP-3.0) (superseded)</option>
+          <option>PHP License 3.01 (PHP-3.01)</option>
+          <option>The PostgreSQL License (PostgreSQL)</option>
+          <option>Python License (Python-2.0) (overall Python license)</option>
+          <option>CNRI Python license (CNRI-Python) (CNRI portion of Python License)</option>
+          <option>Q Public License (QPL-1.0)</option>
+          <option>RealNetworks Public Source License V1.0 (RPSL-1.0)</option>
+          <option>Reciprocal Public License, version 1.1 (RPL-1.1) (superseded)</option>
+          <option>Reciprocal Public License 1.5 (RPL-1.5)</option>
+          <option>Ricoh Source Code Public License (RSCPL)</option>
+          <option>SIL Open Font License 1.1 (OFL-1.1)</option>
+          <option>Simple Public License 2.0 (SimPL-2.0)</option>
+          <option>Sleepycat License (Sleepycat)</option>
+          <option>Sun Public License 1.0 (SPL-1.0)</option>
+          <option>Sybase Open Watcom Public License 1.0 (Watcom-1.0)</option>
+          <option>Universal Permissive License (UPL)</option>
+          <option>University of Illinois/NCSA Open Source License (NCSA)</option>
+          <option>Upstream Compatibility License v1.0</option>
+          <option>Unicode Data Files and Software License</option>
+          <option>The Unlicense</option>
+          <option>Vovida Software License v. 1.0 (VSL-1.0)</option>
+          <option>W3C License (W3C)</option>
+          <option>wxWindows Library License (WXwindows)</option>
+          <option>X.Net License (Xnet)</option>
+          <option>Zero-Clause BSD / Free Public License 1.0.0 (0BSD)</option>
+          <option>Zope Public License 2.0 (ZPL-2.0)</option>
+          <option>zlib/libpng license (Zlib)</option>
+          <option>Do What the Fuck You Want to Public License (WTFPL)</option>
+        </select>
+
+        <div class="form-text"><a href="http://www.wtfpl.net/" style="color: #6c757d; text-decoration: none;">Another license choice: WTFPL License</a></div>
+      </div>
+      <div class="mb-3">
+        <label for="keywords" class="form-label">Keywords</label>
+        <br>
+        <input name="keywords" id="keywords" class="form-control form-control-sm" type="tags" placeholder="Keywords">
+      </div>
+      
+      <div class="mb-3">
+        <label for="build_script" class="form-label">Build Script</label>
+        <textarea type="text" class="form-control form-control-sm" id="build_script" name="build_script" placeholder="Mod build script"></textarea>
+      </div>
+      <!--dependencies-->
+      <!--metadata-->
+      <div class="mb-3">
+        <label for="authors" class="form-label">Authors</label>
+        <br>
+        <input name="authors" id="authors" class="form-control form-control-sm" type="tags" placeholder="Authors">
+      </div>
+      
+      <div class="mb-3">
+        <button class="btn btn-primary" onclick="uploadMod()">Submit form</button>
+      </div>
+      
     </form>
 
     <nav aria-label="...">
       <ul id="pages" class="pagination justify-content-center m-3"></ul>
     </nav>
+    <script type="text/javascript" src="./static/tags-input.js"></script>
+    <link rel="stylesheet" href="./static/tags-input.css">
     <script src="/static/util.js"></script>
 
     <script defer src="/static/submit.js"></script>
@@ -177,6 +324,7 @@
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
       crossorigin="anonymous"
-      ></script>
+    ></script>
+    
   </body>
 </html>
