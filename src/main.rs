@@ -151,7 +151,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     )
                     .service(web::resource("/get_mod").route(web::get().to(get_mod::get_mod)))
                     .service(web::resource("/search").route(web::get().to(search::search)))
-                    .service(web::resource("/me").route(web::get().to(users::me))),
+                    .service(web::resource("/me").route(web::get().to(users::me)))
+                    .service(web::scope("/teams").service(
+                        web::resource("/create").route(web::post().to(teams::create_team)),
+                    )),
             )
             .service(
                 web::scope("/api")

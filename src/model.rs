@@ -137,3 +137,17 @@ impl Default for Roles {
         Roles::from_bits_truncate(0)
     }
 }
+
+bitflags! {
+    pub struct TeamRoles: u32 {
+        const OWNER    = 0b00000001;
+        const ADMIN    = 0b00000010;
+        const MOD      = 0b00000100;
+    }
+}
+
+impl Default for TeamRoles {
+    fn default() -> TeamRoles {
+        TeamRoles::from_bits_truncate(0)
+    }
+}

@@ -28,22 +28,8 @@
       "nullable": []
     }
   },
-  "18f35bd2b371b7fa0f38301c50aba938de2a5f9cd1f0b4baeaafdd6697456383": {
-    "query": "INSERT INTO tokens (user_id, email, token) VALUES ($1, $2, $3)",
-    "describe": {
-      "columns": [],
-      "parameters": {
-        "Left": [
-          "Int8",
-          "Text",
-          "Text"
-        ]
-      },
-      "nullable": []
-    }
-  },
-  "1db4065ed7981debe60ee823827adb506fa6a4ee5f8be3cdd97c7ca02740d4d5": {
-    "query": "SELECT * FROM tokens WHERE token = $1",
+  "1a7f07df4c56cc251760732b549c9d5e91858d97033e5ba99bd10d90f9351fac": {
+    "query": "SELECT * FROM tokens WHERE owner_id = $1",
     "describe": {
       "columns": [
         {
@@ -53,7 +39,7 @@
         },
         {
           "ordinal": 1,
-          "name": "user_id",
+          "name": "owner_id",
           "type_info": "Int8"
         },
         {
@@ -75,6 +61,67 @@
           "ordinal": 5,
           "name": "roles",
           "type_info": "Int4"
+        },
+        {
+          "ordinal": 6,
+          "name": "is_team",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+      ]
+    }
+  },
+  "1db4065ed7981debe60ee823827adb506fa6a4ee5f8be3cdd97c7ca02740d4d5": {
+    "query": "SELECT * FROM tokens WHERE token = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "owner_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "token",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "email",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "is_banned",
+          "type_info": "Bool"
+        },
+        {
+          "ordinal": 5,
+          "name": "roles",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 6,
+          "name": "is_team",
+          "type_info": "Bool"
         }
       ],
       "parameters": {
@@ -83,6 +130,7 @@
         ]
       },
       "nullable": [
+        false,
         false,
         false,
         false,
@@ -220,31 +268,18 @@
       ]
     }
   },
-  "35c6db06123c627fca13152fbd8ba08fec5300f2fa907f3699d1889a73be84d8": {
-    "query": "SELECT token, is_banned FROM tokens WHERE user_id = $1 AND email = $2",
+  "34c49c71250c55be9199a80a1d2fc069959d4744b8cd3ea35409e6b3e3668d64": {
+    "query": "INSERT INTO team_members (team_id, member, roles) VALUES ($1, $2, $3)",
     "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "token",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 1,
-          "name": "is_banned",
-          "type_info": "Bool"
-        }
-      ],
+      "columns": [],
       "parameters": {
         "Left": [
+          "Int4",
           "Int8",
-          "Text"
+          "Int4"
         ]
       },
-      "nullable": [
-        false,
-        false
-      ]
+      "nullable": []
     }
   },
   "3a4cc710e0c88971f262d454ed3fd904e73608389126013a1ccbc940bcef63be": {
@@ -273,18 +308,30 @@
       ]
     }
   },
-  "4587e80379140700f0b315afd8c950b1e123e06908944733a731be1b438f6d4d": {
-    "query": "INSERT INTO owners (user_id, mod_name, checksums) VALUES ($1, $2, $3)",
+  "4dba5ce65c97a7257201e6dda62de89946475fad73af2fab098af47077cafc68": {
+    "query": "SELECT * FROM teams WHERE name = $1",
     "describe": {
-      "columns": [],
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Varchar"
+        }
+      ],
       "parameters": {
         "Left": [
-          "Int8",
-          "Text",
-          "VarcharArray"
+          "Text"
         ]
       },
-      "nullable": []
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "4ec3661f41c48428d1f4da0e14b6bbc517a1c95cdc9c445fd682b78eef90e0ef": {
@@ -322,80 +369,32 @@
       "nullable": []
     }
   },
-  "6077dd708e667e8f8ab636caab163d8bdb9a677289a4776f272290d5f4339d6d": {
-    "query": "SELECT * FROM tokens WHERE user_id = $1",
+  "734fa95873084928e303a8f7693fcd426aa9cad9f973cbcb2d7733d887e089bd": {
+    "query": "INSERT INTO tokens (owner_id, email, token) VALUES ($1, $2, $3)",
     "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "id",
-          "type_info": "Int4"
-        },
-        {
-          "ordinal": 1,
-          "name": "user_id",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 2,
-          "name": "token",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 3,
-          "name": "email",
-          "type_info": "Text"
-        },
-        {
-          "ordinal": 4,
-          "name": "is_banned",
-          "type_info": "Bool"
-        },
-        {
-          "ordinal": 5,
-          "name": "roles",
-          "type_info": "Int4"
-        }
-      ],
+      "columns": [],
       "parameters": {
         "Left": [
-          "Int8"
-        ]
-      },
-      "nullable": [
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-      ]
-    }
-  },
-  "81e92710f1cc388f055323db9e295e585cfd08c6d27e4dfda004f79e83179636": {
-    "query": "SELECT user_id, roles FROM tokens WHERE token = $1",
-    "describe": {
-      "columns": [
-        {
-          "ordinal": 0,
-          "name": "user_id",
-          "type_info": "Int8"
-        },
-        {
-          "ordinal": 1,
-          "name": "roles",
-          "type_info": "Int4"
-        }
-      ],
-      "parameters": {
-        "Left": [
+          "Int8",
+          "Text",
           "Text"
         ]
       },
-      "nullable": [
-        false,
-        false
-      ]
+      "nullable": []
+    }
+  },
+  "737761ba6f25079334e8864916f65ebb1ea1dc434594b83ff27d72fef714e08a": {
+    "query": "UPDATE owners SET checksums = array_append(checksums::text[], $1) WHERE owner_id = $2 AND mod_name = $3",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8",
+          "Text"
+        ]
+      },
+      "nullable": []
     }
   },
   "868079805a701ebe67c4df62ae3bf7cf48a753a5b7d70c4a5f66eb6a730eb869": {
@@ -418,18 +417,31 @@
       ]
     }
   },
-  "9f9bc8cf6d8b2e70c0819f662d4699e4fa8e143643a57ab50776a76ddf6f090f": {
-    "query": "UPDATE owners SET checksums = array_append(checksums::text[], $1) WHERE user_id = $2 AND mod_name = $3",
+  "8870304d6dc2fafe0b847e78b91060603a202027a31eb5723ee0fea6d462a404": {
+    "query": "SELECT token, is_banned FROM tokens WHERE owner_id = $1 AND email = $2",
     "describe": {
-      "columns": [],
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "token",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 1,
+          "name": "is_banned",
+          "type_info": "Bool"
+        }
+      ],
       "parameters": {
         "Left": [
-          "Text",
           "Int8",
           "Text"
         ]
       },
-      "nullable": []
+      "nullable": [
+        false,
+        false
+      ]
     }
   },
   "a02841d4e7491d379c29e25cffa7119a0cd111f7aa6331f84647591736a4e605": {
@@ -584,8 +596,54 @@
       ]
     }
   },
-  "d01b9ff33062b1ed9487d5feb4e35b82cdce3c123bbd0223f2e8303990b9cb23": {
-    "query": "SELECT mod_name FROM owners WHERE user_id = $1 AND mod_name = $2",
+  "a515cef907e46c80b7bb327ef5a7fe648bc3edf30ae45cc81402fd05b63b69f5": {
+    "query": "INSERT INTO teams (name) VALUES ($1) RETURNING id",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "id",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Varchar"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "acb6df5c0e4bed87d7dffa33a4e128b6320303c794a0b23fef9cadac2d36903b": {
+    "query": "SELECT owner_id, roles FROM tokens WHERE token = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "owner_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "roles",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  },
+  "b67b400fe486d9bde4d018122179722937b414441bf3ef0cefffb549f8685c32": {
+    "query": "SELECT mod_name FROM owners WHERE owner_id = $1 AND mod_name = $2",
     "describe": {
       "columns": [
         {
@@ -603,6 +661,20 @@
       "nullable": [
         false
       ]
+    }
+  },
+  "c91b34f1d6c7fd42d0aa51e9b75bbb15c6bf04ffeb4fdece62470bc57ed31761": {
+    "query": "INSERT INTO owners (owner_id, mod_name, checksums) VALUES ($1, $2, $3)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text",
+          "VarcharArray"
+        ]
+      },
+      "nullable": []
     }
   },
   "d2299a5e14a02eab7f364b2adb5bcadf32cd69d426e6d8807432effb1c97d754": {
