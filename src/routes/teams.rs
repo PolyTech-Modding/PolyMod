@@ -38,7 +38,7 @@ pub async fn create_team(
         .execute(pool)
         .await?;
 
-        Ok(HttpResponse::Ok().body("ok"))
+        Ok(HttpResponse::Ok().body(&format!("Created the team `{}` with the id `{}`", &data.name, query.id)))
     } else {
         Ok(HttpResponse::BadRequest().body("No valid identity provided"))
     }
