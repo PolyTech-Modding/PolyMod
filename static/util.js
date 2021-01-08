@@ -117,32 +117,32 @@ function initialize(){
     }
     else { // if not cached, fetch user data
         fetch( "/public_api/me")
-        	.then(function (response) {
-        		if (response.status !== 200){
+            .then(function (response) {
+                if (response.status !== 200){
                     localStorage.logged_in = false
                     return
-        		}
+                }
             
-        		response.json().then(function (json_data) {
+                response.json().then(function (json_data) {
                     //console.log(json_data)
                     localStorage.logged_in = true
                     localStorage.me = JSON.stringify(json_data)
                     setup(json_data)
-        		})
-        	}
+                })
+            }
         )
     }
     
-    if (localStorage.logged_in == "false"){
+    if (!localStorage.logged_in || localStorage.logged_in == "false"){
         if (!localStorage.oauth2_url){
             fetch("/oauth2_url")
-            	.then(function (response) {
-            		response.json().then(function (res) {
+                .then(function (response) {
+                    response.json().then(function (res) {
                         console.log(res)
                         localStorage.oauth2_url = res.url
                         document.getElementById("login_button").setAttribute("onclick", `document.location.href = '${localStorage.oauth2_url}'`);
-            		})
-            	}
+                    })
+                }
             )
         }
         else {
