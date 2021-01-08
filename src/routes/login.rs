@@ -96,8 +96,7 @@ pub async fn get_token(
                 &user.email
             )
             .fetch_optional(pool)
-            .await
-            .unwrap();
+            .await?;
 
             if let Some(data) = query {
                 if data.is_banned {
@@ -121,8 +120,7 @@ pub async fn get_token(
                     &token
                 )
                 .execute(pool)
-                .await
-                .unwrap();
+                .await?;
 
                 return Ok(HttpResponse::Ok().body(token));
             }
