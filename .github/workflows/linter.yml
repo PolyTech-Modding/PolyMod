@@ -48,3 +48,5 @@ jobs:
           VALIDATE_ALL_CODEBASE: true
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VALIDATE_SQL: false
+          FILTER_REGEX_EXCLUDE: .*sqlx-data.json
