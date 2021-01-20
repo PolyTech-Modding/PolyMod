@@ -282,6 +282,45 @@
       "nullable": []
     }
   },
+  "3790e94d4e40c62ff10ceccbc5a9737ca9c67cd836f8aa83e1fa4765ecdc4af4": {
+    "query": "SELECT * FROM owners WHERE owner_id = $1 AND mod_name = $2",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "owner_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "mod_name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "checksums",
+          "type_info": "VarcharArray"
+        },
+        {
+          "ordinal": 3,
+          "name": "is_team",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ]
+    }
+  },
   "3a4cc710e0c88971f262d454ed3fd904e73608389126013a1ccbc940bcef63be": {
     "query": "SELECT id, is_good FROM verification WHERE checksum = $1",
     "describe": {
@@ -352,6 +391,20 @@
       "nullable": [
         false
       ]
+    }
+  },
+  "5349014a1561d8f2e88b08f7cf407fa11ac6bd792af8979d7a9aa5ad0395c961": {
+    "query": "UPDATE owners SET owner_id = $1, is_team = true WHERE owner_id = $2 AND mod_name = $3",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Int8",
+          "Text"
+        ]
+      },
+      "nullable": []
     }
   },
   "5dcbf17f07130f6d2ee3c31761effe67c3b3c12905c17604d4fb19f90ca46b57": {
@@ -642,6 +695,32 @@
       ]
     }
   },
+  "b44bc9d774d712f6c906f851b19e27c5a077bda74a842e4cb88cabe8a480e5e5": {
+    "query": "SELECT token, is_banned FROM tokens WHERE owner_id = $1 AND is_team = true",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "token",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 1,
+          "name": "is_banned",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  },
   "b67b400fe486d9bde4d018122179722937b414441bf3ef0cefffb549f8685c32": {
     "query": "SELECT mod_name FROM owners WHERE owner_id = $1 AND mod_name = $2",
     "describe": {
@@ -689,12 +768,59 @@
       "nullable": []
     }
   },
+  "d275cb284efc9c9912a7c2579c71d77ed1e7871ff0637cb8fb87e0250eae9358": {
+    "query": "SELECT * FROM team_members WHERE team_id = $1 AND member = $2",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "team_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "member",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "roles",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4",
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "e1d435e64b9533239d2e224b7a01e0ae9224515357be239c86e31a6e1d96eee1": {
     "query": "UPDATE mods SET downloads = downloads + 1 WHERE checksum = $1",
     "describe": {
       "columns": [],
       "parameters": {
         "Left": [
+          "Text"
+        ]
+      },
+      "nullable": []
+    }
+  },
+  "ee4c7085ce61d6b669bb8f5504b32ff37d0999c1201a48cdfb3337000c38299e": {
+    "query": "INSERT INTO tokens (owner_id, email, token, is_team) VALUES ($1, $2, $3, true)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Int8",
+          "Text",
           "Text"
         ]
       },
