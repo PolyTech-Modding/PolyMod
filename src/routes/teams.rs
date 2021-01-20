@@ -107,3 +107,58 @@ pub async fn get_token(
 
     Ok(HttpResponse::Ok().body("null"))
 }
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct TransferModData {
+    #[serde(rename = "mod")]
+    mod_name: String,
+    team_id: i32,
+}
+
+pub async fn transfer_mod(
+    id: Identity,
+    data: web::Query<TransferModData>,
+    db: web::Data<PgPool>,
+) -> ServiceResult<HttpResponse> {
+    let pool = &**db;
+
+    if let Some(user_id) = id.identity() {
+        let user_id = user_id.parse::<i64>().unwrap();
+
+        let query = sqlx::query!(
+            "SELECT * FROM owners WHERE owner_id = $1 AND mod_name = $2",
+            user_id,
+            &data.mod_name,
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        if query.is_some() {
+            let query = sqlx::query!(
+                "SELECT * FROM team_members WHERE team_id = $1 AND member = $2",
+                data.team_id,
+                user_id,
+            )
+            .fetch_optional(pool)
+            .await?;
+
+            if let Some(user) = query {
+                let roles = TeamRoles::from_bits_truncate(user.roles as u32);
+
+                if roles.contains(TeamRoles::OWNER) {
+                    sqlx::query!(
+                        "UPDATE owners SET owner_id = $1, is_team = true WHERE owner_id = $2 AND mod_name = $3",
+                        data.team_id as i64,
+                        user_id,
+                        &data.mod_name,
+                    )
+                    .execute(pool)
+                    .await?;
+                    return Ok(HttpResponse::Ok().body("Transfer succeed!"))
+                }
+            }
+        }
+    }
+
+    Err(ServiceError::Unauthorized)
+}

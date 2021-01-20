@@ -160,6 +160,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                             .service(
                                 web::resource("/token").route(web::get().to(teams::get_token)),
                             )
+                            .service(
+                                web::resource("/transfer_mod").route(web::get().to(teams::transfer_mod)),
+                            )
                     ),
             )
             .service(
