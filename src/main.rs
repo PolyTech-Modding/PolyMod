@@ -154,15 +154,18 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .service(web::resource("/me").route(web::get().to(users::me)))
                     .service(
                         web::scope("/teams")
+                            .service(web::resource("/token").route(web::get().to(teams::get_token)))
+                            .service(web::resource("/invite").route(web::get().to(teams::invite)))
                             .service(
                                 web::resource("/create").route(web::post().to(teams::create_team)),
                             )
                             .service(
-                                web::resource("/token").route(web::get().to(teams::get_token)),
+                                web::resource("/transfer_mod")
+                                    .route(web::get().to(teams::transfer_mod)),
                             )
                             .service(
-                                web::resource("/transfer_mod").route(web::get().to(teams::transfer_mod)),
-                            )
+                                web::resource("/join/{invite}").route(web::get().to(teams::join)),
+                            ),
                     ),
             )
             .service(
