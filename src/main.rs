@@ -21,7 +21,7 @@ use std::env;
 
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_ratelimit::{RateLimiter, RedisStore, RedisStoreActor};
-use actix_web::dev::Service;
+use actix_web::dev::{Service, ServiceRequest};
 use actix_web::{middleware, web, App, HttpResponse, HttpServer};
 
 use darkredis::ConnectionPool;
@@ -32,6 +32,21 @@ use toml::Value;
 
 use tokio::fs::File;
 use tokio::prelude::*;
+
+fn identifier(req: &ServiceRequest) -> Result<String, actix_ratelimit::errors::ARError> {
+    let key = match req.headers().get("Authorization") {
+        Some(x) => x,
+        None => {
+            if let Some(ip) = &req.headers().get("x-real-ip") {
+                return Ok(ip.to_str().unwrap().to_string());
+            } else {
+                return Ok(req.peer_addr().unwrap().to_string());
+            }
+        }
+    };
+    let key = key.to_str().unwrap();
+    Ok(key.to_string())
+}
 
 #[actix_web::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -105,20 +120,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 RateLimiter::new(RedisStoreActor::from(store.clone()).start())
                     .with_interval(std::time::Duration::from_secs(120))
                     .with_max_requests(60)
-                    .with_identifier(|req| {
-                        let key = match req.headers().get("Authorization") {
-                            Some(x) => x,
-                            None => {
-                                if let Some(ip) = &req.headers().get("x-real-ip") {
-                                    return Ok(ip.to_str().unwrap().to_string());
-                                } else {
-                                    return Ok(req.peer_addr().unwrap().to_string());
-                                }
-                            }
-                        };
-                        let key = key.to_str().unwrap();
-                        Ok(key.to_string())
-                    }),
+                    .with_identifier(identifier),
             )
             .service(web::resource("/").route(web::get().to(|| async move {
                 actix_files::NamedFile::open("./static/homepage.html").unwrap()
@@ -149,7 +151,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     )
                     .service(web::resource("/get_mod").route(web::get().to(get_mod::get_mod)))
                     .service(web::resource("/search").route(web::get().to(search::search)))
-                    .service(web::resource("/me").route(web::get().to(users::me))),
+                    .service(web::resource("/me").route(web::get().to(users::me)))
+                    .service(
+                        web::scope("/teams")
+                            .service(web::resource("/token").route(web::get().to(teams::get_token)))
+                            .service(web::resource("/invite").route(web::get().to(teams::invite)))
+                            .service(
+                                web::resource("/create").route(web::post().to(teams::create_team)),
+                            )
+                            .service(
+                                web::resource("/transfer_mod")
+                                    .route(web::get().to(teams::transfer_mod)),
+                            )
+                            .service(
+                                web::resource("/join/{invite}").route(web::get().to(teams::join)),
+                            ),
+                    ),
             )
             .service(
                 web::scope("/api")

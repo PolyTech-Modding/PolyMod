@@ -76,7 +76,7 @@ pub async fn me(
             let token = String::from_utf8(token).unwrap();
             let user = get_user_data(&token).await?;
 
-            let query = sqlx::query!("SELECT * FROM tokens WHERE user_id = $1", user.id as i64)
+            let query = sqlx::query!("SELECT * FROM tokens WHERE owner_id = $1", user.id as i64)
                 .fetch_optional(pool)
                 .await?;
 
@@ -85,8 +85,8 @@ pub async fn me(
 
                 let data = MeResponseData {
                     roles: roles.bits(),
-                    user_id: data.user_id as u64,
-                    user_id_string: data.user_id.to_string(),
+                    user_id: data.owner_id as u64,
+                    user_id_string: data.owner_id.to_string(),
                     is_banned: data.is_banned,
                     token: data.token.to_string(),
                     discord: user,
@@ -107,14 +107,14 @@ pub async fn me(
             .await?;
 
         if let Some(data) = query {
-            if let Ok(Some(oauth_token)) = conn.get(&data.user_id.to_string()).await {
+            if let Ok(Some(oauth_token)) = conn.get(&data.owner_id.to_string()).await {
                 let user = get_user_data(&String::from_utf8(oauth_token).unwrap()).await?;
                 let roles = Roles::from_bits_truncate(data.roles as u32);
 
                 let data = MeResponseData {
                     roles: roles.bits(),
-                    user_id: data.user_id as u64,
-                    user_id_string: data.user_id.to_string(),
+                    user_id: data.owner_id as u64,
+                    user_id_string: data.owner_id.to_string(),
                     is_banned: data.is_banned,
                     token: token.to_string(),
                     discord: user,

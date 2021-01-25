@@ -260,7 +260,7 @@ pub async fn upload(
         .collect::<Vec<String>>();
 
     let user = sqlx::query!(
-        "SELECT user_id, roles FROM tokens WHERE token = $1",
+        "SELECT owner_id, roles FROM tokens WHERE token = $1",
         req.headers()
             .get("Authorization")
             // unwrap is safe this method only runs when the /api token check has been done.
@@ -272,8 +272,8 @@ pub async fn upload(
     .await?;
 
     let owner = sqlx::query!(
-        "SELECT mod_name FROM owners WHERE user_id = $1 AND mod_name = $2",
-        user.user_id,
+        "SELECT mod_name FROM owners WHERE owner_id = $1 AND mod_name = $2",
+        user.owner_id,
         &data.name,
     )
     .fetch_optional(pool)
@@ -281,9 +281,9 @@ pub async fn upload(
 
     if owner.is_some() {
         sqlx::query!(
-            "UPDATE owners SET checksums = array_append(checksums::text[], $1) WHERE user_id = $2 AND mod_name = $3",
+            "UPDATE owners SET checksums = array_append(checksums::text[], $1) WHERE owner_id = $2 AND mod_name = $3",
             &checksum,
-            user.user_id,
+            user.owner_id,
             &data.name,
         )
         .execute(pool)
@@ -304,8 +304,8 @@ pub async fn upload(
             return Ok(HttpResponse::Unauthorized().body("You do not own this mod"));
         } else {
             sqlx::query!(
-                "INSERT INTO owners (user_id, mod_name, checksums) VALUES ($1, $2, $3)",
-                user.user_id,
+                "INSERT INTO owners (owner_id, mod_name, checksums) VALUES ($1, $2, $3)",
+                user.owner_id,
                 &data.name,
                 &vec![checksum.to_string()],
             )

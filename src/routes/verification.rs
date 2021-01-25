@@ -18,7 +18,7 @@ pub async fn verify(
     let pool = &**db;
 
     let query = sqlx::query!(
-        "SELECT user_id, roles FROM tokens WHERE token = $1",
+        "SELECT owner_id, roles FROM tokens WHERE token = $1",
         req.headers()
             .get("Authorization")
             // unwrap is safe this method only runs when the /api token check has been done.
@@ -70,7 +70,7 @@ pub async fn verify(
             if let Err(why) = sqlx::query!(
                 "INSERT INTO verification (checksum, verifier_id, is_good, reason) VALUES ($1, $2, $3, $4)",
                 &data.checksum,
-                &query_data.user_id,
+                &query_data.owner_id,
                 &data.is_good,
                 data.reason.as_ref(),
             )

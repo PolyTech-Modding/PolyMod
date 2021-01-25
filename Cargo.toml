@@ -35,8 +35,7 @@ version = "3"
 features = ["secure-cookies", "rustls"]
 
 [dependencies.actix-ratelimit]
-git = "https://github.com/TerminalWitchcraft/actix-ratelimit/"
-branch = "master"
+version = "0.3"
 default-features = false
 features = ["redis-store"]
 

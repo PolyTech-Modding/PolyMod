@@ -91,13 +91,12 @@ pub async fn get_token(
             let user = get_user_data(&token).await?;
 
             let query = sqlx::query!(
-                "SELECT token, is_banned FROM tokens WHERE user_id = $1 AND email = $2",
+                "SELECT token, is_banned FROM tokens WHERE owner_id = $1 AND email = $2",
                 user.id as i64,
                 &user.email
             )
             .fetch_optional(pool)
-            .await
-            .unwrap();
+            .await?;
 
             if let Some(data) = query {
                 if data.is_banned {
@@ -115,14 +114,13 @@ pub async fn get_token(
                 .unwrap_or_else(|| "null".to_string());
 
                 sqlx::query!(
-                    "INSERT INTO tokens (user_id, email, token) VALUES ($1, $2, $3)",
+                    "INSERT INTO tokens (owner_id, email, token) VALUES ($1, $2, $3)",
                     user.id as i64,
                     &user.email,
                     &token
                 )
                 .execute(pool)
-                .await
-                .unwrap();
+                .await?;
 
                 return Ok(HttpResponse::Ok().body(token));
             }
