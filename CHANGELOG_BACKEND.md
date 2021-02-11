@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3-alpha
+
+- #7591a2a Added Teams - @nitsuga5124
+- #bbbb80e Added mod ownership to /me - @nitsuga5124
+
 ## 0.1.2-alpha - First Public Release
 
 - #c4e1bfa Sending 2 files in parallel with the same name can cause os errors #1 - @nitsuga5124
