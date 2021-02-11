@@ -8,28 +8,28 @@ use std::fmt::{self, Display};
 use strsim::normalized_levenshtein;
 
 #[derive(Debug, Clone)]
-struct QueryData {
-    checksum: String,
-    name: String,
-    version: String,
-    description: String,
-    keywords: Option<Vec<String>>,
-    verification: Option<Verification>,
-    downloads: i64,
-    uploaded: DateTime<Utc>,
+pub struct QueryData {
+    pub checksum: String,
+    pub name: String,
+    pub version: String,
+    pub description: String,
+    pub keywords: Option<Vec<String>>,
+    pub verification: Option<Verification>,
+    pub downloads: i64,
+    pub uploaded: DateTime<Utc>,
 }
 
-#[derive(Serialize, Deserialize, Debug, Default)]
+#[derive(Serialize, Deserialize, Debug, Default, Clone)]
 pub struct SearchModsResponse {
-    checksum: String,
-    name: String,
-    version: String,
-    description: String,
+    pub checksum: String,
+    pub name: String,
+    pub version: String,
+    pub description: String,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    keywords: Vec<String>,
-    verification: Verification,
-    downloads: i64,
-    uploaded: String,
+    pub keywords: Vec<String>,
+    pub verification: Verification,
+    pub downloads: i64,
+    pub uploaded: String,
 }
 
 #[derive(Serialize, Deserialize, Debug, Default, Clone)]

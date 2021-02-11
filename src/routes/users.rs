@@ -1,5 +1,8 @@
 use crate::error::*;
 use crate::model::*;
+use crate::routes::search::{SearchModsResponse, QueryData};
+
+use std::collections::HashMap;
 
 use actix_identity::Identity;
 use actix_web::http::header;
@@ -8,6 +11,8 @@ use actix_web::{web, HttpRequest, HttpResponse};
 use darkredis::ConnectionPool;
 use handlebars::Handlebars;
 use sqlx::postgres::PgPool;
+use futures::StreamExt;
+use semver::Version;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MeResponseData {
@@ -18,6 +23,8 @@ pub struct MeResponseData {
     token: String,
 
     discord: UserResponse,
+    mods: Vec<SearchModsResponse>,
+    teams: HashMap<String, i32>,
 }
 
 pub async fn get_user_data(token: &str) -> ServiceResult<UserResponse> {
@@ -70,6 +77,7 @@ pub async fn me(
 ) -> ServiceResult<HttpResponse> {
     let pool = &**db;
     let mut conn = redis.get().await;
+    let mut resp_data = None;
 
     if let Some(user_id) = id.identity() {
         if let Ok(Some(token)) = conn.get(&user_id).await {
@@ -83,19 +91,99 @@ pub async fn me(
             if let Some(data) = query {
                 let roles = Roles::from_bits_truncate(data.roles as u32);
 
-                let data = MeResponseData {
+                let mut mods = vec![];
+
+                let query = sqlx::query!("SELECT * FROM owners WHERE owner_id = $1", data.owner_id)
+                    .fetch_all(pool)
+                    .await?;
+
+                for i in query {
+                    let mut query = sqlx::query_as!(
+                        QueryData,
+                        r#"
+                            SELECT
+                                checksum,
+                                name,
+                                version,
+                                description,
+                                keywords,
+                                verification as "verification: Verification",
+                                downloads,
+                                uploaded
+                            FROM
+                                mods
+                            WHERE
+                                name = $1
+                            ORDER BY
+                                uploaded
+                                ASC
+                        "#,
+                        &i.mod_name
+                    )
+                    .fetch(pool)
+                    .boxed();
+
+                    let mut le_mod: Option<SearchModsResponse> = None;
+
+                    while let Some(Ok(value)) = query.next().await {
+                        if let Some(ref m) = le_mod {
+                            let ver = Version::parse(&value.version).unwrap();
+                            let m = Version::parse(&m.version).unwrap();
+
+                            if ver > m {
+                                le_mod = Some(SearchModsResponse {
+                                    checksum: value.checksum.to_string(),
+                                    name: value.name.to_string(),
+                                    version: value.version.to_string(),
+                                    description: value.description.to_string(),
+                                    keywords: value.keywords.clone().unwrap_or_default(),
+                                    verification: value.verification.clone().unwrap_or_default(),
+                                    downloads: value.downloads,
+                                    uploaded: value.uploaded.to_rfc3339(),
+                                });
+                            }
+                        } else {
+                            le_mod = Some(SearchModsResponse {
+                                checksum: value.checksum.to_string(),
+                                name: value.name.to_string(),
+                                version: value.version.to_string(),
+                                description: value.description.to_string(),
+                                keywords: value.keywords.clone().unwrap_or_default(),
+                                verification: value.verification.clone().unwrap_or_default(),
+                                downloads: value.downloads,
+                                uploaded: value.uploaded.to_rfc3339(),
+                            });
+                        }
+                    }
+
+                    if let Some(ref m) = le_mod {
+                        mods.push(m.clone());
+                    }
+                }
+
+                let mut teams = HashMap::new();
+
+                let query = sqlx::query!("SELECT * FROM team_members WHERE member = $1", data.owner_id)
+                    .fetch_all(pool)
+                    .await?;
+
+                for i in query {
+                    teams.insert(i.team_id.to_string(), i.roles);
+                }
+
+                resp_data = Some(MeResponseData {
                     roles: roles.bits(),
                     user_id: data.owner_id as u64,
                     user_id_string: data.owner_id.to_string(),
                     is_banned: data.is_banned,
-                    token: data.token.to_string(),
+                    token: token.to_string(),
                     discord: user,
-                };
-
-                return Ok(HttpResponse::Ok().json(data));
+                    mods,
+                    teams,
+                });
+            } else {
+                return Ok(HttpResponse::NoContent().finish());
             }
-
-            return Ok(HttpResponse::NoContent().finish());
         }
     }
 
@@ -111,16 +199,96 @@ pub async fn me(
                 let user = get_user_data(&String::from_utf8(oauth_token).unwrap()).await?;
                 let roles = Roles::from_bits_truncate(data.roles as u32);
 
-                let data = MeResponseData {
+                let mut mods = vec![];
+
+                let query = sqlx::query!("SELECT * FROM owners WHERE owner_id = $1", data.owner_id)
+                    .fetch_all(pool)
+                    .await?;
+
+                for i in query {
+                    let mut query = sqlx::query_as!(
+                        QueryData,
+                        r#"
+                            SELECT
+                                checksum,
+                                name,
+                                version,
+                                description,
+                                keywords,
+                                verification as "verification: Verification",
+                                downloads,
+                                uploaded
+                            FROM
+                                mods
+                            WHERE
+                                name = $1
+                            ORDER BY
+                                uploaded
+                                ASC
+                        "#,
+                        &i.mod_name
+                    )
+                    .fetch(pool)
+                    .boxed();
+
+                    let mut le_mod: Option<SearchModsResponse> = None;
+
+                    while let Some(Ok(value)) = query.next().await {
+                        if let Some(ref m) = le_mod {
+                            let ver = Version::parse(&value.version).unwrap();
+                            let m = Version::parse(&m.version).unwrap();
+
+                            if ver > m {
+                                le_mod = Some(SearchModsResponse {
+                                    checksum: value.checksum.to_string(),
+                                    name: value.name.to_string(),
+                                    version: value.version.to_string(),
+                                    description: value.description.to_string(),
+                                    keywords: value.keywords.clone().unwrap_or_default(),
+                                    verification: value.verification.clone().unwrap_or_default(),
+                                    downloads: value.downloads,
+                                    uploaded: value.uploaded.to_rfc3339(),
+                                });
+                            }
+                        } else {
+                            le_mod = Some(SearchModsResponse {
+                                checksum: value.checksum.to_string(),
+                                name: value.name.to_string(),
+                                version: value.version.to_string(),
+                                description: value.description.to_string(),
+                                keywords: value.keywords.clone().unwrap_or_default(),
+                                verification: value.verification.clone().unwrap_or_default(),
+                                downloads: value.downloads,
+                                uploaded: value.uploaded.to_rfc3339(),
+                            });
+                        }
+                    }
+
+                    if let Some(ref m) = le_mod {
+                        mods.push(m.clone());
+                    }
+                }
+
+                let mut teams = HashMap::new();
+
+                let query = sqlx::query!("SELECT * FROM team_members WHERE member = $1", data.owner_id)
+                    .fetch_all(pool)
+                    .await?;
+
+                for i in query {
+                    teams.insert(i.team_id.to_string(), i.roles);
+                }
+
+                resp_data = Some(MeResponseData {
                     roles: roles.bits(),
                     user_id: data.owner_id as u64,
                     user_id_string: data.owner_id.to_string(),
                     is_banned: data.is_banned,
                     token: token.to_string(),
                     discord: user,
-                };
-
-                return Ok(HttpResponse::Ok().json(data));
+                    mods,
+                    teams,
+                });
             } else {
                 return Ok(HttpResponse::BadRequest().json(serde_json::json!({
                     "error": "OAuth2 Session Expired"
@@ -129,5 +297,9 @@ pub async fn me(
         }
     }
 
-    Ok(HttpResponse::NoContent().finish())
+    if let Some(data) = resp_data {
+        Ok(HttpResponse::Ok().json(data))
+    } else {
+        Ok(HttpResponse::NoContent().finish())
+    }
 }
