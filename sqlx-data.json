@@ -568,6 +568,38 @@
       ]
     }
   },
+  "8ca663d5caa267e5c1c404663d85de1c3bb01fc64cc3ddb5b12351e16493e3d6": {
+    "query": "SELECT * FROM team_members WHERE member = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "team_id",
+          "type_info": "Int4"
+        },
+        {
+          "ordinal": 1,
+          "name": "member",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 2,
+          "name": "roles",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "9fd3ba761d2c2373620fa6eed22bc6f702926e143a0100e7f0c479ad49b58bfd": {
     "query": "SELECT name, id FROM teams WHERE invite = $1",
     "describe": {
@@ -792,6 +824,80 @@
       ]
     }
   },
+  "b2febd38afa4b6b1e94b2b18d596010c233a7b0bb7b868d68ee01751f6d3046b": {
+    "query": "\n                            SELECT\n                                checksum,\n                                name,\n                                version,\n                                description,\n                                keywords,\n                                verification as \"verification: Verification\",\n                                downloads,\n                                uploaded\n                            FROM\n                                mods\n                            WHERE\n                                name = $1\n                            ORDER BY\n                                uploaded\n                                ASC\n                        ",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "checksum",
+          "type_info": "Varchar"
+        },
+        {
+          "ordinal": 1,
+          "name": "name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "version",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 3,
+          "name": "description",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 4,
+          "name": "keywords",
+          "type_info": "TextArray"
+        },
+        {
+          "ordinal": 5,
+          "name": "verification: Verification",
+          "type_info": {
+            "Custom": {
+              "name": "verification_level",
+              "kind": {
+                "Enum": [
+                  "Unsafe",
+                  "Auto",
+                  "Manual",
+                  "Core"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "ordinal": 6,
+          "name": "downloads",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 7,
+          "name": "uploaded",
+          "type_info": "Timestamptz"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false,
+        false,
+        true,
+        true,
+        false,
+        false
+      ]
+    }
+  },
   "b44bc9d774d712f6c906f851b19e27c5a077bda74a842e4cb88cabe8a480e5e5": {
     "query": "SELECT token, is_banned FROM tokens WHERE owner_id = $1 AND is_team = true",
     "describe": {
@@ -894,6 +1000,44 @@
       "nullable": [
         false,
         false,
+        false
+      ]
+    }
+  },
+  "dd94b1ce618ec93527ebe228fba1b898b2e592233b23a3e9209eb1061a5ad03a": {
+    "query": "SELECT * FROM owners WHERE owner_id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "owner_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "mod_name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "checksums",
+          "type_info": "VarcharArray"
+        },
+        {
+          "ordinal": 3,
+          "name": "is_team",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        true,
         false
       ]
     }
