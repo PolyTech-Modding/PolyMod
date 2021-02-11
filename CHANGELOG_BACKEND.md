@@ -1,17 +1,5 @@
 # Changelog
 
-## 0.1.0-alpha
-
-- #dd0cc9f Initial release - @nitsuga5124
-
-## 0.1.1-alpha
-
-- #70a5bae Fixed order of logger middleware - @nitsuga5124
-- #2d22764 Added a too short reason check - @nitsuga5124
-- #1fda549 Added default page for 404 - @nitsuga5124
-- #fe2207e Added mod ownership - @nitsuga5124
-- #a05a2d4 Updated deps and version bump - @nitsuga5124
-
 ## 0.1.2-alpha - First Public Release
 
 - #c4e1bfa Sending 2 files in parallel with the same name can cause os errors #1 - @nitsuga5124
@@ -30,3 +18,15 @@
 - #596eea0 Added discord information to `/me` - @nitsuga5124
 - #74ef62c Added user id as a string in `/me` - nitsuga5124
 - #86addbd Changed the login redirects to home - @Conqu3red
+
+## 0.1.1-alpha
+
+- #70a5bae Fixed order of logger middleware - @nitsuga5124
+- #2d22764 Added a too short reason check - @nitsuga5124
+- #1fda549 Added default page for 404 - @nitsuga5124
+- #fe2207e Added mod ownership - @nitsuga5124
+- #a05a2d4 Updated deps and version bump - @nitsuga5124
+
+## 0.1.0-alpha
+
+- #dd0cc9f Initial release - @nitsuga5124
