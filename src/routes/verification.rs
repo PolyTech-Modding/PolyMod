@@ -1,4 +1,4 @@
-use crate::error::ServiceResult;
+use crate::error::*;
 use crate::model::*;
 use actix_web::{web, HttpRequest, HttpResponse};
 use sqlx::{postgres::PgDatabaseError, PgPool};
@@ -120,4 +120,79 @@ pub async fn verify(
     } else {
         Ok(HttpResponse::Ok().body("Successfully added mod verification."))
     }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct YankData {
+    checksum: String,
+    reason: Option<String>,
+}
+
+pub async fn yank(
+    req: HttpRequest,
+    data: web::Query<YankData>,
+    db: web::Data<PgPool>,
+) -> ServiceResult<HttpResponse> {
+    let pool = &**db;
+
+    let query = sqlx::query!(
+        "SELECT owner_id, roles FROM tokens WHERE token = $1",
+        req.headers()
+            .get("Authorization")
+            // unwrap is safe this method only runs when the /api token check has been done.
+            .unwrap()
+            .to_str()
+            .unwrap()
+    )
+    .fetch_optional(pool)
+    .await?;
+
+    if let Some(query_data) = query {
+        let query = sqlx::query!(
+            "SELECT name FROM mods WHERE checksum = $1",
+            &data.checksum,
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        if let Some(x) = query {
+            let query = sqlx::query!(
+                "SELECT * FROM owners WHERE mod_name = $1 AND owner_id = $2",
+                &x.name,
+                query_data.owner_id,
+            )
+            .fetch_optional(pool)
+            .await?;
+
+            if query.is_some() {
+                if let Err(why) = sqlx::query!(
+                    "INSERT INTO verification (checksum, verifier_id, reason) VALUES ($1, $2, $3)",
+                    &data.checksum,
+                    &query_data.owner_id,
+                    data.reason.as_ref(),
+                )
+                .execute(pool)
+                .await {
+                    match why {
+                        sqlx::Error::Database(x) => {
+                            if let Some(_constraint) = x.downcast_ref::<PgDatabaseError>().constraint() {
+                                return Ok(HttpResponse::BadRequest().body("You have already submitted a verification for this mod."))
+                            }
+                        }
+                        _ => return Err(why.into())
+                    }
+                };
+
+                sqlx::query!(
+                    "UPDATE mods SET verification = 'Yanked' WHERE checksum = $1",
+                    &data.checksum,
+                )
+                .execute(pool)
+                .await?;
+                return Ok(HttpResponse::Ok().body("Successfully yanked mod."))
+            }
+        }
+    }
+
+    Err(ServiceError::Unauthorized)
 }

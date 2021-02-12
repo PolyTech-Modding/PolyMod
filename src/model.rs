@@ -9,6 +9,7 @@ pub const HEX_BASE: [&str; 16] = [
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, PartialOrd, sqlx::Type)]
 pub enum Verification {
     None,
+    Yanked,
     Unsafe,
     Auto,
     Manual,
@@ -25,6 +26,7 @@ impl fmt::Display for Verification {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
             Self::None => write!(f, "None"),
+            Self::Yanked => write!(f, "Yanked"),
             Self::Unsafe => write!(f, "Unsafe"),
             Self::Auto => write!(f, "Auto"),
             Self::Manual => write!(f, "Manual"),

@@ -207,7 +207,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         }
                     })
                     .service(web::resource("/upload").route(web::post().to(upload::upload)))
-                    .service(web::resource("/verify").to(verification::verify)),
+                    .service(web::resource("/verify").to(verification::verify))
+                    .service(web::resource("/yank").to(verification::yank))
             )
             .default_service(web::to(|| {
                 HttpResponse::NotFound().body("404 - Route Not Found")

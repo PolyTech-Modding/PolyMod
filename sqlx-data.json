@@ -175,7 +175,8 @@
                   "Unsafe",
                   "Auto",
                   "Manual",
-                  "Core"
+                  "Core",
+                  "Yanked"
                 ]
               }
             }
@@ -253,7 +254,8 @@
                   "Unsafe",
                   "Auto",
                   "Manual",
-                  "Core"
+                  "Core",
+                  "Yanked"
                 ]
               }
             }
@@ -286,6 +288,20 @@
         false,
         false
       ]
+    }
+  },
+  "3359f66bf09a5a12a77e78d2cd5f088428a8ec560b461bced43616c268e92520": {
+    "query": "INSERT INTO verification (checksum, verifier_id, reason) VALUES ($1, $2, $3)",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Varchar",
+          "Int8",
+          "Text"
+        ]
+      },
+      "nullable": []
     }
   },
   "34c49c71250c55be9199a80a1d2fc069959d4744b8cd3ea35409e6b3e3668d64": {
@@ -541,6 +557,45 @@
       ]
     }
   },
+  "8697b6e9884be5d0903cff6105c0a581dd02bfed0bab596b11fb834670fb89b0": {
+    "query": "SELECT * FROM owners WHERE mod_name = $1 AND owner_id = $2",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "owner_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "mod_name",
+          "type_info": "Text"
+        },
+        {
+          "ordinal": 2,
+          "name": "checksums",
+          "type_info": "VarcharArray"
+        },
+        {
+          "ordinal": 3,
+          "name": "is_team",
+          "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text",
+          "Int8"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        true,
+        false
+      ]
+    }
+  },
   "8870304d6dc2fafe0b847e78b91060603a202027a31eb5723ee0fea6d462a404": {
     "query": "SELECT token, is_banned FROM tokens WHERE owner_id = $1 AND email = $2",
     "describe": {
@@ -598,6 +653,18 @@
         false,
         false
       ]
+    }
+  },
+  "91cb9f72844fb6094d2c4850d4820309a4bd25ac73d2d8c1ea0273306ec77724": {
+    "query": "UPDATE mods SET verification = 'Yanked' WHERE checksum = $1",
+    "describe": {
+      "columns": [],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": []
     }
   },
   "9fd3ba761d2c2373620fa6eed22bc6f702926e143a0100e7f0c479ad49b58bfd": {
@@ -731,7 +798,8 @@
                   "Unsafe",
                   "Auto",
                   "Manual",
-                  "Core"
+                  "Core",
+                  "Yanked"
                 ]
               }
             }
@@ -864,7 +932,8 @@
                   "Unsafe",
                   "Auto",
                   "Manual",
-                  "Core"
+                  "Core",
+                  "Yanked"
                 ]
               }
             }
@@ -937,6 +1006,26 @@
       "parameters": {
         "Left": [
           "Int8",
+          "Text"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
+  "b8be7e93c73cf8cd4b29928c67535b3ad28e9b9b300487aaad9194ff5ef93d40": {
+    "query": "SELECT name FROM mods WHERE checksum = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "name",
+          "type_info": "Text"
+        }
+      ],
+      "parameters": {
+        "Left": [
           "Text"
         ]
       },
