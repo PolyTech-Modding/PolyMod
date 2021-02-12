@@ -4,6 +4,9 @@
 
 - #7591a2a Added Teams - @nitsuga5124
 - #bbbb80e Added mod ownership to /me - @nitsuga5124
+- #b0861a6 Fixed broken ownership on failed upload - @nitsuga5124
+- #1674fc4 Implemented version yanking - @nitsuga5124
+- ...
 
 ## 0.1.2-alpha - First Public Release
 
