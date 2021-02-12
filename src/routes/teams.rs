@@ -268,7 +268,10 @@ pub async fn join(
             .execute(pool)
             .await?;
 
-            return Ok(HttpResponse::Ok().body(format!("Successfully joined team {} with id {}", query.name, query.id)));
+            return Ok(HttpResponse::Ok().body(format!(
+                "Successfully joined team {} with id {}",
+                query.name, query.id
+            )));
         }
     }
 

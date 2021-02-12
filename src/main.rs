@@ -33,6 +33,7 @@ use toml::Value;
 use tokio::fs::File;
 use tokio::prelude::*;
 
+#[allow(clippy::unnecessary_wraps)]
 fn identifier(req: &ServiceRequest) -> Result<String, actix_ratelimit::errors::ARError> {
     let key = match req.headers().get("Authorization") {
         Some(x) => x,
@@ -208,7 +209,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     })
                     .service(web::resource("/upload").route(web::post().to(upload::upload)))
                     .service(web::resource("/verify").to(verification::verify))
-                    .service(web::resource("/yank").to(verification::yank))
+                    .service(web::resource("/yank").to(verification::yank)),
             )
             .default_service(web::to(|| {
                 HttpResponse::NotFound().body("404 - Route Not Found")

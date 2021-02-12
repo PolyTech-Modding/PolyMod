@@ -1,6 +1,6 @@
 use crate::error::*;
 use crate::model::*;
-use crate::routes::search::{SearchModsResponse, QueryData};
+use crate::routes::search::{QueryData, SearchModsResponse};
 
 use std::collections::HashMap;
 
@@ -9,10 +9,10 @@ use actix_web::http::header;
 use actix_web::{web, HttpRequest, HttpResponse};
 
 use darkredis::ConnectionPool;
-use handlebars::Handlebars;
-use sqlx::postgres::PgPool;
 use futures::StreamExt;
+use handlebars::Handlebars;
 use semver::Version;
+use sqlx::postgres::PgPool;
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MeResponseData {
@@ -163,9 +163,12 @@ pub async fn me(
 
                 let mut teams = HashMap::new();
 
-                let query = sqlx::query!("SELECT * FROM team_members WHERE member = $1", data.owner_id)
-                    .fetch_all(pool)
-                    .await?;
+                let query = sqlx::query!(
+                    "SELECT * FROM team_members WHERE member = $1",
+                    data.owner_id
+                )
+                .fetch_all(pool)
+                .await?;
 
                 for i in query {
                     teams.insert(i.team_id.to_string(), i.roles);
@@ -271,9 +274,12 @@ pub async fn me(
 
                 let mut teams = HashMap::new();
 
-                let query = sqlx::query!("SELECT * FROM team_members WHERE member = $1", data.owner_id)
-                    .fetch_all(pool)
-                    .await?;
+                let query = sqlx::query!(
+                    "SELECT * FROM team_members WHERE member = $1",
+                    data.owner_id
+                )
+                .fetch_all(pool)
+                .await?;
 
                 for i in query {
                     teams.insert(i.team_id.to_string(), i.roles);

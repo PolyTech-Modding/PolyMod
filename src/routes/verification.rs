@@ -148,12 +148,9 @@ pub async fn yank(
     .await?;
 
     if let Some(query_data) = query {
-        let query = sqlx::query!(
-            "SELECT name FROM mods WHERE checksum = $1",
-            &data.checksum,
-        )
-        .fetch_optional(pool)
-        .await?;
+        let query = sqlx::query!("SELECT name FROM mods WHERE checksum = $1", &data.checksum,)
+            .fetch_optional(pool)
+            .await?;
 
         if let Some(x) = query {
             let query = sqlx::query!(
@@ -172,14 +169,19 @@ pub async fn yank(
                     data.reason.as_ref(),
                 )
                 .execute(pool)
-                .await {
+                .await
+                {
                     match why {
                         sqlx::Error::Database(x) => {
-                            if let Some(_constraint) = x.downcast_ref::<PgDatabaseError>().constraint() {
-                                return Ok(HttpResponse::BadRequest().body("You have already submitted a verification for this mod."))
+                            if let Some(_constraint) =
+                                x.downcast_ref::<PgDatabaseError>().constraint()
+                            {
+                                return Ok(HttpResponse::BadRequest().body(
+                                    "You have already submitted a verification for this mod.",
+                                ));
                             }
                         }
-                        _ => return Err(why.into())
+                        _ => return Err(why.into()),
                     }
                 };
 
@@ -189,7 +191,7 @@ pub async fn yank(
                 )
                 .execute(pool)
                 .await?;
-                return Ok(HttpResponse::Ok().body("Successfully yanked mod."))
+                return Ok(HttpResponse::Ok().body("Successfully yanked mod."));
             }
         }
     }
