@@ -279,6 +279,8 @@ pub async fn upload(
     .fetch_optional(pool)
     .await?;
 
+    let mut transaction = pool.begin().await?;
+
     if owner.is_some() {
         sqlx::query!(
             "UPDATE owners SET checksums = array_append(checksums::text[], $1) WHERE owner_id = $2 AND mod_name = $3",
@@ -286,11 +288,11 @@ pub async fn upload(
             user.owner_id,
             &data.name,
         )
-        .execute(pool)
+        .execute(&mut transaction)
         .await?;
     } else {
         let query = sqlx::query!("SELECT checksum FROM mods WHERE name = $1", &data.name)
-            .fetch_optional(pool)
+            .fetch_optional(&mut transaction)
             .await?;
 
         if query.is_some() {
@@ -309,7 +311,7 @@ pub async fn upload(
                 &data.name,
                 &vec![checksum.to_string()],
             )
-            .execute(pool)
+            .execute(&mut transaction)
             .await?;
         }
     }
@@ -340,7 +342,7 @@ pub async fn upload(
         &data.metadata,
         &checksum,
     )
-    .execute(pool)
+    .execute(&mut transaction)
     .await;
 
     if let Err(why) = query {
@@ -355,6 +357,8 @@ pub async fn upload(
     }
 
     tokio::fs::rename(&filepath, &mod_checksum_path).await?;
+
+    transaction.commit().await?;
 
     Ok("ok".into())
 }
