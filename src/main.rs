@@ -19,6 +19,7 @@ use crate::routes::*;
 
 use std::env;
 
+use actix_files::NamedFile;
 use actix_identity::{CookieIdentityPolicy, IdentityService};
 use actix_ratelimit::{RateLimiter, RedisStore, RedisStoreActor};
 use actix_web::dev::{Service, ServiceRequest};
@@ -123,15 +124,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .with_max_requests(60)
                     .with_identifier(identifier),
             )
-            .service(web::resource("/").route(web::get().to(|| async move {
-                actix_files::NamedFile::open("./static/homepage.html").unwrap()
-            })))
-            .service(web::resource("/search").route(web::get().to(|| async move {
-                actix_files::NamedFile::open("./static/search_results.html").unwrap()
-            })))
-            .service(web::resource("/submit").route(web::get().to(|| async move {
-                actix_files::NamedFile::open("./static/submit.html").unwrap()
-            })))
+            .service(web::resource("/").route(
+                web::get().to(|| async move { NamedFile::open("./static/homepage.html").unwrap() }),
+            ))
+            .service(
+                web::resource("/search").route(web::get().to(|| async move {
+                    NamedFile::open("./static/search_results.html").unwrap()
+                })),
+            )
+            .service(web::resource("/submit").route(
+                web::get().to(|| async move { NamedFile::open("./static/submit.html").unwrap() }),
+            ))
             .service(web::resource("/mod").route(web::get().to(get_mod::front_end)))
             .service(web::resource("/user").route(web::get().to(users::index)))
             .service(web::resource("/oauth2_url").to(login::get_oauth2))
@@ -141,9 +144,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .service(web::resource("/discord/oauth2").route(web::get().to(login::oauth)))
             .service(actix_files::Files::new("/static", "./static").show_files_listing())
             .service(actix_files::Files::new("/templates", "./templates").show_files_listing())
-            .service(web::resource("/favicon.ico").to(|| async move {
-                actix_files::NamedFile::open("./static/PolyTech.svg").unwrap()
-            }))
+            .service(
+                web::resource("/favicon.ico")
+                    .to(|| async move { NamedFile::open("./static/PolyTech.svg").unwrap() }),
+            )
             .service(
                 web::scope("/public_api")
                     .service(
