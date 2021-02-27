@@ -32,7 +32,7 @@ pub async fn verify(
     if let Some(query_data) = query {
         let roles = Roles::from_bits_truncate(query_data.roles as u32);
 
-        if roles.contains(Roles::VERIFYER) {
+        if roles.contains(Roles::VERIFIER) {
             let query = sqlx::query!(
                 r#"SELECT verification as "verification: Verification" FROM mods WHERE checksum = $1"#,
                 &data.checksum,

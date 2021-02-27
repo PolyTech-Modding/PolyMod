@@ -128,7 +128,7 @@ bitflags! {
         const OWNER    = 0b00000001;
         const ADMIN    = 0b00000010;
         const MOD      = 0b00000100;
-        const VERIFYER = 0b00001000;
+        const VERIFIER = 0b00001000;
         const MAPPER   = 0b00010000;
         const BOT      = 0b00100000;
     }
