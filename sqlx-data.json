@@ -667,6 +667,26 @@
       "nullable": []
     }
   },
+  "9f8007bbc53f09695adf0dfb0b6ac59375b13fc286c699e0bbe17e00d7bb180f": {
+    "query": "SELECT name FROM teams WHERE id = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "name",
+          "type_info": "Varchar"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Int4"
+        ]
+      },
+      "nullable": [
+        false
+      ]
+    }
+  },
   "9fd3ba761d2c2373620fa6eed22bc6f702926e143a0100e7f0c479ad49b58bfd": {
     "query": "SELECT name, id FROM teams WHERE invite = $1",
     "describe": {

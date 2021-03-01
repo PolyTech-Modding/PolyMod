@@ -2,8 +2,6 @@ use crate::error::*;
 use crate::model::*;
 use crate::routes::search::{QueryData, SearchModsResponse};
 
-use std::collections::HashMap;
-
 use actix_identity::Identity;
 use actix_web::http::header;
 use actix_web::{web, HttpRequest, HttpResponse};
@@ -13,6 +11,14 @@ use futures::StreamExt;
 use handlebars::Handlebars;
 use semver::Version;
 use sqlx::postgres::PgPool;
+
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct TeamInfo {
+    name: String,
+    id: i32,
+    roles: i32,
+}
 
 #[derive(Serialize, Deserialize, Debug)]
 pub struct MeResponseData {
@@ -24,7 +30,7 @@ pub struct MeResponseData {
 
     discord: UserResponse,
     mods: Vec<SearchModsResponse>,
-    teams: HashMap<String, i32>,
+    teams: Vec<TeamInfo>,
 }
 
 pub async fn get_user_data(token: &str) -> ServiceResult<UserResponse> {
@@ -161,7 +167,7 @@ pub async fn me(
                     }
                 }
 
-                let mut teams = HashMap::new();
+                let mut teams = Vec::new();
 
                 let query = sqlx::query!(
                     "SELECT * FROM team_members WHERE member = $1",
@@ -171,7 +177,18 @@ pub async fn me(
                 .await?;
 
                 for i in query {
-                    teams.insert(i.team_id.to_string(), i.roles);
+                    let team = sqlx::query!(
+                        "SELECT name FROM teams WHERE id = $1",
+                        i.team_id,
+                    )
+                    .fetch_one(pool)
+                    .await?;
+
+                    teams.push(TeamInfo {
+                        name: team.name,
+                        id: i.team_id,
+                        roles: i.roles,
+                    });
                 }
 
                 resp_data = Some(MeResponseData {
@@ -272,7 +289,7 @@ pub async fn me(
                     }
                 }
 
-                let mut teams = HashMap::new();
+                let mut teams = Vec::new();
 
                 let query = sqlx::query!(
                     "SELECT * FROM team_members WHERE member = $1",
@@ -282,7 +299,18 @@ pub async fn me(
                 .await?;
 
                 for i in query {
-                    teams.insert(i.team_id.to_string(), i.roles);
+                    let team = sqlx::query!(
+                        "SELECT name FROM teams WHERE id = $1",
+                        i.team_id,
+                    )
+                    .fetch_one(pool)
+                    .await?;
+
+                    teams.push(TeamInfo {
+                        name: team.name,
+                        id: i.team_id,
+                        roles: i.roles,
+                    });
                 }
 
                 resp_data = Some(MeResponseData {
