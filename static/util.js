@@ -31,6 +31,17 @@ const verificationProperties = {
             <p class="m-0 small"><em>You can find more information about mod verification <a href="#">here</a>.</em></p>
         </div>`,
     },
+    Yanked: {
+        badge: '<span class="badge bg-dark">Yanked</span>',
+        download_colour: "btn-danger",
+        alert: `
+        <div class="alert alert-danger" role="alert" id="alert_unsafe">
+            <h4 class="alert-heading mb-0 text-center">Mod <u>failed</u> verification</h4>
+            <p class="my-2">This mod has been yanked by the owner. A download is still available but not recommended!</p>
+            <hr class="m-1">
+            <p class="m-0 small"><em>You can find more information about mod verification <a href="#">here</a>.</em></p>
+        </div>`,
+    },
     DEFAULT: {
         badge: '<span class="badge bg-dark">Unverified</span>',
         download_colour: "btn-danger",
@@ -107,12 +118,12 @@ const Roles = {
     }
 }
 var data, user_data, oauth2_url, logged_in
-function initialize(){
+function initialize(forceReload=false){
     //localStorage.me
     //localStorage.oauth2_url
     //localStorage.logged_in
     
-    if (localStorage.me){ // if user_data is cached
+    if (localStorage.me && !forceReload){ // if user_data is cached
         setup(JSON.parse(localStorage.me))
     }
     else { // if not cached, fetch user data

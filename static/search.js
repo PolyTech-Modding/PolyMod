@@ -113,7 +113,7 @@ function handleSearch(clear = true, after_checksum = null) {
                     }
                 }
                 data.forEach((result) => {
-                    addCard(result);
+                    addModCard(result);
                 });
 
                 if (data.length == 0 || data.length < per_page-1){
@@ -180,7 +180,7 @@ function autoFillFromUrl() {
     fillFormItemFromUrl("reverse", document.getElementsByName("reverse")[0], "switch", params)
 }
 
-function addCard(result) {
+function addModCard(result) {
     console.log(result)
     //console.log(result.authors)
     //if (result.authors == undefined) result.authors = []

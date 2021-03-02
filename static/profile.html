@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Static CSS -->
+    <link rel="stylesheet" href="/static/navbar.css" />
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
+      crossorigin="anonymous"
+      />
+
+    <title>PolyTech Modding Prototype</title>
+  </head>
+
+  <body id="body">
+    <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
+      <div class="container-fluid">
+        <a class="navbar-brand pt-1" href="/">
+          <!-- <object data="static/PolyTech.svg" type="image/svg+xml" class="logo mx-2" style="vertical-align: middle; height: 2rem"></object> -->
+          <svg viewBox="0 0 1634 1152" xmlns="http://www.w3.org/2000/svg" class="logo mx-2" style="vertical-align: middle; height: 2rem">
+            <defs>
+            <style>
+              .cls-1 {
+                fill: #004d70;
+              }
+              .cls-2 {
+                fill: #00c4ff;
+              }
+              .cls-3 {
+                fill: #007ead;
+              }
+              .cls-4 {
+                fill: #000a75;
+              }
+              .cls-5 {
+                fill: #0048ff;
+              }
+              .cls-6 {
+                fill: #00ff2c;
+              }
+              .cls-7 {
+                fill: #00941a;
+              }
+            </style>
+            </defs>
+
+            <g data-name="Right Cube">
+            <g data-name="Axo Surface*">
+            <polygon class="cls-4" points="1246.8 892.78 1246.8 452.29 1628.3 232.04 1628.3 672.53" />
+            <polygon class="cls-5" points="1246.8 452.29 865.37 232.04 1246.8 11.79 1628.3 232.04" />
+            </g>
+            </g>
+            <g data-name="Left Cube">
+            <g data-name="Axo Surface*">
+            <polygon class="cls-6" points="386.61 452.06 5.13 231.82 386.61 11.57 768.09 231.82" />
+            </g>
+            <g data-name="Axo cap">
+            <polygon class="cls-7" points="386.61 892.56 5.13 672.31 5.13 231.82 386.61 452.06" />
+            </g>
+            </g>
+            <g data-name="Middle Cube" class="middlecube">
+            <g data-name="Axo Surface*">
+            <polygon class="cls-1" points="816.92 1141 816.92 700.51 1198.4 480.26 1198.4 920.75" />
+            <polygon class="cls-2" points="816.92 700.51 435.44 480.26 816.92 260.01 1198.4 480.26" />
+            </g>
+            <g data-name="Axo cap">
+            <polygon class="cls-3" points="816.92 1141 435.44 920.75 435.44 480.26 816.92 700.51" />
+            </g>
+            </g>
+          </svg>
+
+          PolyTech Mod Index
+        </a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+          >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav me-auto mb-2 mb-sm-0">
+            <li class="nav-item">
+              <a class="nav-link" href="/search">Mods</a>
+            </li>
+            <li id="upload_mods_nav_item" class="nav-item" hidden>
+              <a class="nav-link" href="/submit">Upload Mods</a>
+            </li>
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                Core Frameworks
+              </a>
+              <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="#">PolyTechFramework</a></li>
+                <li><a class="dropdown-item" href="#">API Switcher</a></li>
+              </ul>
+            </li>
+
+          </ul>
+          <button id="login_button" class="btn btn-dark mx-2">
+            <span class="align-middle">
+              <img class="m-1" src="/static/Discord-Logo-White.svg" style="width:32px;height:32px;">Login with Discord
+            </span>
+          </button>
+          <button hidden id="user_button" class="btn btn-dark mx-2" onclick="window.location.href = '/profile'">
+            username goes here
+          </button>
+          <button hidden id="logout_button" class="btn btn-danger mx-2" onclick="window.location.href = '/logout'">
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+    <script type="text/javascript" src="./static/tags-input.js"></script>
+    <link rel="stylesheet" href="./static/tags-input.css">
+    <script src="/static/util.js"></script>
+
+    <div id="profile" class="container p-0 mt-2">
+      <div class="row p-0">
+        <div class="col col-4 m-0 p-0">
+          <img class="mx-auto" id="profile_image" style="width: 90%; border-radius: 50%; display: block; max-width: 150px;">
+          <h1 class="text-center" id="username">username</h1>
+        </div>
+         
+        <div class="col col-8 m-0 p-0">
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a href="#" id="mods_select" class="nav-link active">Mods <span class="badge bg-secondary rounded-pill" id="mod_count">4</span></a>
+            </li>
+            <li class="nav-item">
+              <a href="#" id="teams_select" class="nav-link">Teams <span class="badge bg-secondary rounded-pill" id="team_count">4</span></a>
+            </li>
+              
+          </ul>
+          <div id="mods_display"></div>
+          <div id="teams_display">
+            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#create_team" onclick="create_team_alerts.innerHTML = ''">Create team</button>
+            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#join_team">Join team</button>
+          </div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="modal fade" id="create_team" tabindex="-1" aria-labelledby="create_team" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="create_team_label">Create team</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="create_team_alerts"></div>
+          <form id="create_team_form" action="" method="GET">
+            <div class="mb-3">
+              <label for="team_name" class="form-label">Team Name</label>
+              <input id="team_name" required class="form-control">
+            </div>
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button id="create_team_dismiss" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="createTeam()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="join_team" tabindex="-1" aria-labelledby="join_team" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="join_team_label">Mod Verification</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="alerts"></div>
+          <form id="verification_form" action="" method="GET">
+            <div class="form-check mb-3">
+              <input name="is_good" class="form-check-input" type="checkbox" value="false" onchange="formUpdate()">
+              <label class="form-check-label" for="is_good">Is the mod safe?</label>
+              <br>
+            </div>
+            <div class="mb-3">
+              <label for="reason" class="form-label">Reason</label>
+              <textarea required minlength="60" class="form-control" id="reason" rows="3"></textarea>
+            </div>
+            <!--<input name="page" value=0 hidden onchange="handleSearch()">-->
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" onclick="submitVerification()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script defer src="/static/profile.js"></script>
+
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
+      crossorigin="anonymous"
+    ></script>
+    
+  </body>
+</html>
