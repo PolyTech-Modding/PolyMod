@@ -242,7 +242,7 @@ function setup(json_data){
                 team_switcher.selectedIndex = i
             }
         }
-        if (!localStorage.team_token){
+        if (!localStorage.team_token || localStorage.team_token == "null"){
             teamSwitch()
         }
     }
