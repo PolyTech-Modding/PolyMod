@@ -73,7 +73,7 @@ function submitVerification(){
             mode: "same-origin",
             credentials: "include",
             headers: {
-                "Authorization": data.token
+                "Authorization": getToken()
             }
         }
     ).then(
@@ -103,4 +103,87 @@ function submitVerification(){
         }
     )
 
+}
+
+function configureTransferWindow(){
+    let transfer_target = document.getElementById("transfer_target")
+    while (transfer_target.options.length > 0){
+        transfer_target.remove(0)
+    }
+    data.teams.forEach(team => {
+        let option = document.createElement("option")
+        option.text = team.name
+        option.value = team.id
+        transfer_target.add(option)
+    })
+
+}
+
+function transferMod(){
+    let transfer_target = document.getElementById("transfer_target")
+    let alerts = document.getElementById("transfer_alerts")
+    let f = new FormData()
+    f.set("team_id", transfer_target.selectedOptions[0].value)
+    f.set("mod", document.getElementById("mod_name").textContent)
+    let params = new URLSearchParams(f).toString()
+    fetch("./public_api/teams/transfer_mod?" + params, 
+        {
+            method: "get",
+            headers: {
+                "accept-charset":"utf-8"
+            },
+        }
+    ).then(response => {
+        if (response.status === 200){
+            response.text().then(text => {
+                alerts.innerHTML += `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                ${text}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+            })
+        }
+        if (response.status === 400 || response.status === 401 || response.status === 403){
+            response.text().then(text => {
+                alerts.innerHTML += `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                ${text}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+            })
+        }
+    })
+}
+
+function yankMod(){
+    let checksum = document.getElementById("files").textContent.split("/")[3]
+    let alerts = document.getElementById("yank_alerts")
+    let f = new FormData()
+    f.set("checksum", checksum)
+    f.set("reason", document.getElementById("yank_reason").value)
+    let params = new URLSearchParams(f).toString()
+    fetch("./api/yank?" + params,
+        {
+            mode: "same-origin",
+            credentials: "include",
+            headers: {
+                "Authorization": getToken()
+            }
+        }
+    ).then(response => {
+        if (response.status === 200){
+            response.text().then(text => {
+                alerts.innerHTML += `<div class="alert alert-success alert-dismissible fade show" role="alert">
+                ${text}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+            })
+        }
+        if (response.status === 400 || response.status === 401 || response.status === 403){
+            response.text().then(text => {
+                alerts.innerHTML += `<div class="alert alert-danger alert-dismissible fade show" role="alert">
+                ${text}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>`
+            })
+        }
+    })
 }

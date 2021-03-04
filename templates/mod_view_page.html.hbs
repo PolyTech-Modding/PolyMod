@@ -118,6 +118,10 @@
           <button hidden id="logout_button" class="btn btn-danger mx-2" onclick="window.location.href = '/logout'">
             Logout
           </button>
+          
+          <select id="team_switcher" class="form-select m-2" style="width: 100px;" onchange="teamSwitch()">
+            <option selected value="none">No Team</option>
+          </select>
         </div>
       </div>
     </nav>
@@ -140,7 +144,9 @@
               <div class="me-auto"><b>Description: </b>{{ data.package.description }}</div>
               <div class="">
                 <button id="download_button" type="button" class="btn mb-1">Download Mod</button>
-                <button hidden id="mod_options" type="button" class="btn mb-1 btn-secondary" data-bs-toggle="modal" data-bs-target="#mod_options_modal" onclick="document.getElementById('alerts').innerHTML = ''">Mod Options</button>
+                <button hidden id="mod_options" type="button" class="btn mb-1 btn-secondary" data-bs-toggle="modal" data-bs-target="#mod_options_modal" onclick="document.getElementById('alerts').innerHTML = ''">Verify</button>
+                <button id="yank_button" type="button" class="btn mb-1 btn-secondary" data-bs-toggle="modal" data-bs-target="#yank_modal" onclick="document.getElementById('yank_alerts').innerHTML = ''">Yank Mod</button>
+                <button id="transfer_button" type="button" class="btn mb-1 btn-secondary" data-bs-toggle="modal" data-bs-target="#transfer_mod_modal" onclick="document.getElementById('transfer_alerts').innerHTML = ''; configureTransferWindow()">Transfer to Team</button>
               </div>
             </div>
           </div>
@@ -225,6 +231,47 @@
           <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" onclick="submitVerification()">Send</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="transfer_mod_modal" tabindex="-1" aria-labelledby="transfer_mod_modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="transfer_mod_modal_label">Mod Verification</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+              <div hidden id="mod_name">{{ data.name }}</div>
+            <div id="transfer_alerts"></div>
+          <form id="transfer_form" action="" method="GET">
+            <select id="transfer_target" name="transfer_target" class="form-select form-control-sm">
+            </select>
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="transferMod()">Transfer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="yank_modal" tabindex="-1" aria-labelledby="yank_modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="yank_modal_label">Are you sure you want to yank this mod?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="yank_alerts"></div>
+            Reason for yanking the mod:
+            <input id="yank_reason" class="form-control">
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger" onclick="yankMod()">Yank Mod</button>
           </div>
         </div>
       </div>

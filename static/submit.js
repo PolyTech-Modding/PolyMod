@@ -65,7 +65,7 @@ function uploadMod(){
             mode: "same-origin",
             credentials: "include",
             headers: {
-                "Authorization": data.token
+                "Authorization": getToken()
             },
             body: f
             

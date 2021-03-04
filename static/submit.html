@@ -119,6 +119,10 @@
           <button hidden id="logout_button" class="btn btn-danger mx-2" onclick="window.location.href = '/logout'">
             Logout
           </button>
+          
+          <select id="team_switcher" class="form-select m-2" style="width: 100px;" onchange="teamSwitch()">
+            <option selected value="none">No Team</option>
+          </select>
         </div>
       </div>
     </nav>

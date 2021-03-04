@@ -119,6 +119,10 @@
           <button hidden id="logout_button" class="btn btn-danger mx-2" onclick="window.location.href = '/logout'">
             Logout
           </button>
+          
+          <select id="team_switcher" class="form-select m-2" style="width: 100px;" onchange="teamSwitch()">
+            <option selected value="none">No Team</option>
+          </select>
         </div>
       </div>
     </nav>
@@ -128,12 +132,12 @@
 
     <div id="profile" class="container p-0 mt-2">
       <div class="row p-0">
-        <div class="col col-4 m-0 p-0">
+        <div class="col m-0 p-0">
           <img class="mx-auto" id="profile_image" style="width: 90%; border-radius: 50%; display: block; max-width: 150px;">
           <h1 class="text-center" id="username">username</h1>
         </div>
          
-        <div class="col col-8 m-0 p-0">
+        <div class="col-sm col-sm-8 m-0 p-0">
           <ul class="nav nav-tabs">
             <li class="nav-item">
               <a href="#" id="mods_select" class="nav-link active">Mods <span class="badge bg-secondary rounded-pill" id="mod_count">4</span></a>
@@ -143,11 +147,10 @@
             </li>
               
           </ul>
+          <button class="btn btn-light m-2" onclick="reloadMe()">Refresh</button>
+          <button hidden id="create_team_button" class="btn btn-light m-2" data-bs-toggle="modal" data-bs-target="#create_team" onclick="create_team_alerts.innerHTML = ''">Create team</button>
           <div id="mods_display"></div>
-          <div id="teams_display">
-            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#create_team" onclick="create_team_alerts.innerHTML = ''">Create team</button>
-            <button class="btn btn-light" data-bs-toggle="modal" data-bs-target="#join_team">Join team</button>
-          </div>
+          <div hidden id="teams_display"></div>
         </div>
       </div>
       
@@ -170,38 +173,22 @@
           </form>
           </div>
           <div class="modal-footer">
-            <button id="create_team_dismiss" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" onclick="createTeam()">Send</button>
+            <button type="button" class="btn btn-primary" onclick="createTeam()">Create</button>
           </div>
         </div>
       </div>
     </div>
 
-    <div class="modal fade" id="join_team" tabindex="-1" aria-labelledby="join_team" aria-hidden="true">
+    <div class="modal fade" id="team_invite_modal" tabindex="-1" aria-labelledby="team_invite_modal" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="join_team_label">Mod Verification</h5>
+            <h5 class="modal-title" id="team_invite_modal_label">Team Invite</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <div id="alerts"></div>
-          <form id="verification_form" action="" method="GET">
-            <div class="form-check mb-3">
-              <input name="is_good" class="form-check-input" type="checkbox" value="false" onchange="formUpdate()">
-              <label class="form-check-label" for="is_good">Is the mod safe?</label>
-              <br>
-            </div>
-            <div class="mb-3">
-              <label for="reason" class="form-label">Reason</label>
-              <textarea required minlength="60" class="form-control" id="reason" rows="3"></textarea>
-            </div>
-            <!--<input name="page" value=0 hidden onchange="handleSearch()">-->
-          </form>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" onclick="submitVerification()">Send</button>
+            <div id="team_invite_modal_alerts"></div>
+            Invite link: <a id="team_invite"></a>
           </div>
         </div>
       </div>

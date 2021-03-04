@@ -9,12 +9,14 @@ let team_count = document.getElementById("team_count")
 
 let mods_display = document.getElementById("mods_display")
 let teams_display = document.getElementById("teams_display")
+let create_team_button = document.getElementById("create_team_button")
+
 
 let create_team_alerts = document.getElementById("create_team_alerts")
 let join_team_alerts = document.getElementById("join_team_alerts")
 
 function addModCard(mod) {
-    console.log(mod)
+    //console.log(mod)
     //console.log(result.authors)
     //if (result.authors == undefined) result.authors = []
     //if (result.categories == undefined) result.categories = []
@@ -34,7 +36,7 @@ function addModCard(mod) {
     card = document.createElement("div");
     card.setAttribute("role", "button");
     card.setAttribute("onclick", `document.location.href = '/mod?name=${mod.name}&version==${mod.version}&verification=${mod.verification}'`);
-    card.classList.add("card");
+    card.classList.add("card", "mx-2");
 
     body = document.createElement("div");
     body.classList.add("card-body");
@@ -81,7 +83,7 @@ function addModCard(mod) {
 function addTeamCard(team){
     let card = document.createElement("div");
     //card.setAttribute("role", "button");
-    card.classList.add("card");
+    card.classList.add("card", "mx-2");
 
     let body = document.createElement("div");
     body.classList.add("card-body");
@@ -92,11 +94,19 @@ function addTeamCard(team){
     body.appendChild(content);
 
     let title = document.createElement("h5");
-    title.innerHTML = safetext(team);
+    title.innerHTML = safetext(team.name);
+
+    let details = document.createElement("p")
+    details.innerHTML = (team.roles & TeamRoles.OWNER ? "Owner" : (team.roles & TeamRoles.ADMIN ? "Admin" : (team.roles & TeamRoles.MOD ? "Mod" : "No permissions")))
 
     let inviteButton = document.createElement("button")
     inviteButton.innerText = "Invite"
+    inviteButton.onclick = e => {
+        getInvite(team)
+    }
     inviteButton.classList.add("btn", "btn-light")
+    inviteButton.setAttribute("data-bs-toggle", "modal")
+    inviteButton.setAttribute("data-bs-target", "#team_invite_modal")
 
 
     //authors = document.createElement("p");
@@ -112,6 +122,7 @@ function addTeamCard(team){
     //});
     
     content.appendChild(title);
+    content.appendChild(details)
     content.appendChild(inviteButton)
     teams_display.appendChild(card);
 }
@@ -152,25 +163,70 @@ function createTeam(){
     })
 }
 
-
-
-
-
-data.mods.forEach(mod => {
-    addModCard(mod)
-})
-Object.keys(data.teams).forEach(team => {
-    addTeamCard(team)
-})
-
-
-mod_count.innerText = data.mods.length
-if (data.mods.length == 0){
-    mods_select.classList.add("disabled")
+function getInvite(team){
+    let team_invite = document.getElementById("team_invite")
+    team_invite.innerText = ""
+    team_invite.href = ""
+    let f = new FormData()
+    f.set("team_id", team.id)
+    let params = new URLSearchParams(f).toString()
+    fetch("./public_api/teams/invite?" + params, 
+        {
+            method: "get",
+            headers: {
+                "accept-charset":"utf-8"
+            },
+        }
+    ).then(response => {
+        if (response.status === 200){
+            response.text().then(text => {
+                team_invite.innerText = text
+                team_invite.href = text
+            })
+        }
+        if (response.status === 400){
+            response.text().then(text => {
+                
+            })
+        }
+    }).catch(error => {
+        team_invite.innerText = error
+        team_invite.href = ""
+    })
 }
-team_count.innerText = Object.keys(data.teams).length
-if (Object.keys(data.teams).length == 0){
-    teams_select.classList.add("disabled")
+
+
+
+function refreshMods(){
+    mods_display.innerHTML = ""
+    data.mods.forEach(mod => {
+        addModCard(mod)
+    })
+    mod_count.innerText = data.mods.length
+    //if (data.mods.length == 0){
+    //    mods_select.classList.add("disabled")
+    //}
+}
+refreshMods()
+
+
+
+function refreshTeams(){
+    teams_display.innerHTML = ""
+    data.teams.forEach(team => {
+        addTeamCard(team)
+    })
+    team_count.innerText = data.teams.length
+    //if (data.teams.length == 0){
+    //    teams_select.classList.add("disabled")
+    //}
+}
+refreshTeams()
+
+function reloadMe(){
+    initialize(true)
+    refreshMods()
+    refreshTeams()
 }
 
 mods_select.onclick = e => {
@@ -178,10 +234,12 @@ mods_select.onclick = e => {
     mods_display.hidden = false
     teams_select.classList.remove("active")
     mods_select.classList.add("active")
+    create_team_button.hidden = true
 }
 teams_select.onclick = e => {
     mods_display.hidden = true
     teams_display.hidden = false
     mods_select.classList.remove("active")
     teams_select.classList.add("active")
+    create_team_button.hidden = false
 }
