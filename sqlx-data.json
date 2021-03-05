@@ -918,6 +918,32 @@
       ]
     }
   },
+  "acb6df5c0e4bed87d7dffa33a4e128b6320303c794a0b23fef9cadac2d36903b": {
+    "query": "SELECT owner_id, roles FROM tokens WHERE token = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "owner_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "roles",
+          "type_info": "Int4"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false
+      ]
+    }
+  },
   "b2febd38afa4b6b1e94b2b18d596010c233a7b0bb7b868d68ee01751f6d3046b": {
     "query": "\n                            SELECT\n                                checksum,\n                                name,\n                                version,\n                                description,\n                                keywords,\n                                verification as \"verification: Verification\",\n                                downloads,\n                                uploaded\n                            FROM\n                                mods\n                            WHERE\n                                name = $1\n                            ORDER BY\n                                uploaded\n                                ASC\n                        ",
     "describe": {
