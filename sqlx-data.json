@@ -886,6 +886,38 @@
       ]
     }
   },
+  "07e723d2acd85d803a40905ec471157a30eb2d556275e5c4f555798bae93e52c": {
+    "query": "SELECT owner_id, roles, is_team FROM tokens WHERE token = $1",
+    "describe": {
+      "columns": [
+        {
+          "ordinal": 0,
+          "name": "owner_id",
+          "type_info": "Int8"
+        },
+        {
+          "ordinal": 1,
+          "name": "roles",
+          "type_info": "Int4"
+        },
+        {
+            "ordinal": 2,
+            "name":"is_team",
+            "type_info": "Bool"
+        }
+      ],
+      "parameters": {
+        "Left": [
+          "Text"
+        ]
+      },
+      "nullable": [
+        false,
+        false,
+        false
+      ]
+    }
+  },
   "acb6df5c0e4bed87d7dffa33a4e128b6320303c794a0b23fef9cadac2d36903b": {
     "query": "SELECT owner_id, roles FROM tokens WHERE token = $1",
     "describe": {
@@ -1054,15 +1086,16 @@
       ]
     }
   },
-  "c91b34f1d6c7fd42d0aa51e9b75bbb15c6bf04ffeb4fdece62470bc57ed31761": {
-    "query": "INSERT INTO owners (owner_id, mod_name, checksums) VALUES ($1, $2, $3)",
+  "f2c8d6ca44a490a68b1d13b088d5171bd87ddcbf0f933eaaa2e1f09fad20a1bb": {
+    "query": "INSERT INTO owners (owner_id, mod_name, checksums, is_team) VALUES ($1, $2, $3, $4)",
     "describe": {
       "columns": [],
       "parameters": {
         "Left": [
           "Int8",
           "Text",
-          "VarcharArray"
+          "VarcharArray",
+          "Bool"
         ]
       },
       "nullable": []

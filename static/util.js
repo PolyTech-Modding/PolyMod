@@ -31,6 +31,17 @@ const verificationProperties = {
             <p class="m-0 small"><em>You can find more information about mod verification <a href="#">here</a>.</em></p>
         </div>`,
     },
+    Yanked: {
+        badge: '<span class="badge bg-dark">Yanked</span>',
+        download_colour: "btn-danger",
+        alert: `
+        <div class="alert alert-danger" role="alert" id="alert_unsafe">
+            <h4 class="alert-heading mb-0 text-center">Mod <u>failed</u> verification</h4>
+            <p class="my-2">This mod has been yanked by the owner. A download is still available but not recommended!</p>
+            <hr class="m-1">
+            <p class="m-0 small"><em>You can find more information about mod verification <a href="#">here</a>.</em></p>
+        </div>`,
+    },
     DEFAULT: {
         badge: '<span class="badge bg-dark">Unverified</span>',
         download_colour: "btn-danger",
@@ -106,19 +117,55 @@ const Roles = {
         return false
     }
 }
+const TeamRoles = {
+    OWNER    : 0b00000001,
+    ADMIN    : 0b00000010,
+    MOD      : 0b00000100,
+}
+
 var data, user_data, oauth2_url, logged_in
-function initialize(){
+
+
+function tryGetToken(){
+    if ((!localStorage.token || localStorage.token == "null") && localStorage.logged_in == "true"){
+        fetch("/token")
+            .then(function (response) {
+                if (response.status !== 200){
+                    //console.log(response.status)
+                    //localStorage.logged_in = false
+                    return
+                }
+            
+                response.text().then(function (text) {
+                    //console.log(json_data)
+                    localStorage.token = text
+                })
+            }
+        )
+    }
+}
+
+
+function initialize(forceReload=false){
     //localStorage.me
     //localStorage.oauth2_url
     //localStorage.logged_in
+    //localStorage.as_team
+    //localStorage.token
+    //localStorage.team_id
+    //localStorage.team_token
+    if (localStorage.as_team == undefined){
+        localStorage.as_team = false
+    }
     
-    if (localStorage.me){ // if user_data is cached
+    if (localStorage.me && !forceReload){ // if user_data is cached
         setup(JSON.parse(localStorage.me))
     }
     else { // if not cached, fetch user data
-        fetch( "/public_api/me")
+        fetch("/public_api/me")
             .then(function (response) {
                 if (response.status !== 200){
+                    console.log(response.status)
                     localStorage.logged_in = false
                     return
                 }
@@ -127,13 +174,16 @@ function initialize(){
                     //console.log(json_data)
                     localStorage.logged_in = true
                     localStorage.me = JSON.stringify(json_data)
+                    tryGetToken()
                     setup(json_data)
                 })
             }
         )
     }
+    tryGetToken()
     
     if (!localStorage.logged_in || localStorage.logged_in == "false"){
+        localStorage.token = "null"
         if (!localStorage.oauth2_url){
             fetch("/oauth2_url")
                 .then(function (response) {
@@ -173,6 +223,66 @@ function setup(json_data){
     if (authors) {
         authors.value = json_data.discord.username
         $('input[type="tags"]').forEach(tagsInput)
+    }
+    let team_switcher = document.getElementById("team_switcher")
+    //console.log(team_switcher)
+    while (team_switcher.options.length > 1){
+        team_switcher.remove(1)
+    }
+    data.teams.forEach(team => {
+        let option = document.createElement("option")
+        option.text = team.name
+        option.value = team.id
+        team_switcher.add(option)
+    })
+
+    if (localStorage.as_team == "true"){
+        for (var i = 0; i < team_switcher.options.length; i++){
+            if (team_switcher.options[i].value == localStorage.team_id){
+                team_switcher.selectedIndex = i
+            }
+        }
+        if (!localStorage.team_token || localStorage.team_token == "null"){
+            teamSwitch()
+        }
+    }
+}
+
+function getToken(){
+    return localStorage.as_team == "true" ? localStorage.team_token : localStorage.token
+}
+
+function teamSwitch(){
+    let team_switcher = document.getElementById("team_switcher")
+    let team_id = team_switcher.selectedOptions[0].value
+    let team_name = team_switcher.selectedOptions[0].text
+    if (team_id == "none"){
+        localStorage.as_team = false
+        localStorage.team_token = ""
+        localStorage.team_id = ""
+    }
+    else {
+        console.log(`Switching to team ${team_name}`)
+        let f = new FormData()
+        f.set("id", team_id)
+        let params = new URLSearchParams(f).toString()
+        fetch("./public_api/teams/token?" + params, 
+            {
+                method: "get",
+                headers: {
+                    "accept-charset":"utf-8"
+                },
+            }
+        ).then(response => {
+            if (response.status === 200){
+                response.text().then(text => {
+                    localStorage.as_team = true
+                    localStorage.team_id = team_id
+                    localStorage.team_token = text
+                    //location.reload()
+                })
+            }
+        })
     }
 }
 

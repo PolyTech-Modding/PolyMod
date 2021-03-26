@@ -260,7 +260,7 @@ pub async fn upload(
         .collect::<Vec<String>>();
 
     let user = sqlx::query!(
-        "SELECT owner_id, roles FROM tokens WHERE token = $1",
+        "SELECT owner_id, roles, is_team FROM tokens WHERE token = $1",
         req.headers()
             .get("Authorization")
             // unwrap is safe this method only runs when the /api token check has been done.
@@ -306,10 +306,11 @@ pub async fn upload(
             return Ok(HttpResponse::Unauthorized().body("You do not own this mod"));
         } else {
             sqlx::query!(
-                "INSERT INTO owners (owner_id, mod_name, checksums) VALUES ($1, $2, $3)",
+                "INSERT INTO owners (owner_id, mod_name, checksums, is_team) VALUES ($1, $2, $3, $4)",
                 user.owner_id,
                 &data.name,
                 &vec![checksum.to_string()],
+                user.is_team,
             )
             .execute(&mut transaction)
             .await?;

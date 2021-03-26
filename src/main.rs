@@ -135,6 +135,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
             .service(web::resource("/submit").route(
                 web::get().to(|| async move { NamedFile::open("./static/submit.html").unwrap() }),
             ))
+            .service(web::resource("/profile").route(
+                web::get().to(|| async move { NamedFile::open("./static/profile.html").unwrap() }),
+            ))
             .service(web::resource("/mod").route(web::get().to(get_mod::front_end)))
             .service(web::resource("/user").route(web::get().to(users::index)))
             .service(web::resource("/oauth2_url").to(login::get_oauth2))

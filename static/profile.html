@@ -3,6 +3,7 @@
   <head>
     <!-- Static CSS -->
     <link rel="stylesheet" href="/static/navbar.css" />
+
     <!-- Required meta tags -->
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -14,9 +15,11 @@
       integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1"
       crossorigin="anonymous"
       />
+
     <title>PolyTech Modding Prototype</title>
   </head>
-  <body>
+
+  <body id="body">
     <nav class="navbar navbar-expand-md navbar-light bg-light sticky-top">
       <div class="container-fluid">
         <a class="navbar-brand pt-1" href="/">
@@ -123,82 +126,81 @@
         </div>
       </div>
     </nav>
-
-    <h1 class="display-3 text-center mx-3 mt-3">Welcome to the PolyTech Mod Index.</h1>
-    <br>
-    <p class="mx-4 mb-4 text-center">
-    PolyTech is the brainchild of Conqu3red and Arglin Kampling.
-    We founded PolyTech in June of 2020 with the initial intention of
-    bringing technical marvels from real life into Poly Bridge 2.
-    In the following month, however, the PolyTech Modding community was born,
-    and for months the community had grown in privacy.
-    <br><br>
-    <b>Now, we're happy to bring modding to the public! Welcome to PolyTech.</b>
-    <br>
-    </p>
-    <p class="display-6 m-3">Site Navigation - Important places</p>
-    <p class="m-4">
-    <ul>
-      <li>
-        <a href="/search">Mods</a> - The page to search for and find mods.
-      </li>
-      <li>
-        <a href="/mod/poly_tech_framework">PolyTech Framework</a> - Required Core framework for most mods.
-      </li>
-      <li>
-        <a href="https://github.com/BepInEx/BepInEx/releases">BepInEx</a> - Mod creation and loading framework (Required)
-      </li>
-
-      <li>
-        <a href="https://github.com/PolyTech-Modding">PolyTech Modding</a> - The PolyTech Modding GitHub orginisation.
-      </li>
-      <li>
-        <a href="https://discord.gg/QdyC6EA">PolyTech Discord Server</a> - PolyTech Discord Server invite.
-      </li>
-    </ul>
-    </p>
-    <p class="display-6 m-3">Contributors</p>
-    <p class="h5 m-3"><u>The people who made this site possible</u></p>
-    <ul class="ms-2">
-      <li>Conqu3red - Frontend</li>
-      <li>nitsuga5124 - Backend</li>
-      <li>hippolippo - Tutorial</li>
-      <li>Arglin Kampling - Logos</li>
-    </ul>
-    <p class="h5 m-3"><u>Original Modders</u></p>
-    <ul class="ms-2">
-      <li>Bram2323</li>
-      <li>Tran Fox</li>
-      <li>MoonlitJolty</li>
-      <li>Conqu3red</li>
-      <li>Razboy20</li>
-      <li>Mason</li>
-      <li>nitsuga5124</li>
-      <li>A Festive book852</li>
-    </ul>
-    <p class="h5 m-3"><u>Honorable mentions</u></p>
-    <ul>
-      <li>ashduino101</li>
-      <li>BeljihnWahfl</li>
-      <li>Curse</li>
-      <li>Honn</li>
-      <li>Lazy_Comet</li>
-      <li>Lexi bc Vort never here (Vortetty /voɹtɛti/)</li>
-      <li>Mr.ThisGuy</li>
-      <li>Slothybutt</li>
-      <li>TheEgirlH</li>
-      <li>Toto00</li>
-      <li>urmamasllama</li>
-      <li>Vaigg</li>
-    </ul>
-    
+    <script type="text/javascript" src="./static/tags-input.js"></script>
+    <link rel="stylesheet" href="./static/tags-input.css">
     <script src="/static/util.js"></script>
-    <script defer src="/static/homepage.js"></script>
+
+    <div id="profile" class="container p-0 mt-2">
+      <div class="row p-0">
+        <div class="col m-0 p-0">
+          <img class="mx-auto" id="profile_image" style="width: 90%; border-radius: 50%; display: block; max-width: 150px;">
+          <h1 class="text-center" id="username">username</h1>
+        </div>
+         
+        <div class="col-sm col-sm-8 m-0 p-0">
+          <ul class="nav nav-tabs">
+            <li class="nav-item">
+              <a href="#" id="mods_select" class="nav-link active">Mods <span class="badge bg-secondary rounded-pill" id="mod_count">4</span></a>
+            </li>
+            <li class="nav-item">
+              <a href="#" id="teams_select" class="nav-link">Teams <span class="badge bg-secondary rounded-pill" id="team_count">4</span></a>
+            </li>
+              
+          </ul>
+          <button class="btn btn-light m-2" onclick="reloadMe()">Refresh</button>
+          <button hidden id="create_team_button" class="btn btn-light m-2" data-bs-toggle="modal" data-bs-target="#create_team" onclick="create_team_alerts.innerHTML = ''">Create team</button>
+          <div id="mods_display"></div>
+          <div hidden id="teams_display"></div>
+        </div>
+      </div>
+      
+    </div>
+    
+    <div class="modal fade" id="create_team" tabindex="-1" aria-labelledby="create_team" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="create_team_label">Create team</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="create_team_alerts"></div>
+          <form id="create_team_form" action="" method="GET">
+            <div class="mb-3">
+              <label for="team_name" class="form-label">Team Name</label>
+              <input id="team_name" required class="form-control">
+            </div>
+          </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" onclick="createTeam()">Create</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" id="team_invite_modal" tabindex="-1" aria-labelledby="team_invite_modal" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="team_invite_modal_label">Team Invite</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div id="team_invite_modal_alerts"></div>
+            Invite link: <a id="team_invite"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script defer src="/static/profile.js"></script>
 
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js"
       integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
       crossorigin="anonymous"
-      ></script>
+    ></script>
+    
   </body>
 </html>
