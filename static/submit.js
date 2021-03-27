@@ -28,7 +28,30 @@ form.addEventListener('submit', function (event) {
     event.stopPropagation()
 })
 
+let readme_contents = ""
+
+function handleReadmeFileLoad(event){
+    //console.log(event.target.result);
+    readme_contents = event.target.result
+    console.log("readme loaded.")
+    submitMod()
+}
+
 function uploadMod(){
+    readme_contents = ""
+    let readme = document.getElementById("readmeFile")
+    if (readme.files.length > 0){
+        console.log("loading readme...")
+        let reader = new FileReader()
+        reader.onload = handleReadmeFileLoad;
+        reader.readAsText(readme.files[0])
+    }
+    else {
+        submitMod()
+    }
+}
+
+function submitMod(){
     if (!form.checkValidity()) return
     console.log("Uploading Mod...")
     let f = new FormData()
@@ -38,6 +61,13 @@ function uploadMod(){
     let item
     for (var i = 0; i < form.elements.length; i++){
         item = form.elements[i]
+        if (item.id == "readmeFile"){
+            if (item.files.length > 0){
+                json_data["readme"] = readme_contents
+                json_data["readme_filename"] = item.files[0].name
+            }
+            continue
+        }
         if (item.type == "file"){
             if (item.files.length > 0){
                 f.set(item.name, item.files[0], item.files[0].name)
