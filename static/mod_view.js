@@ -14,17 +14,20 @@ if (readme_filename){
     if (readme_filename.endsWith(".md")){
         readme = marked(readme)
     }
-    if (readme_filename.endsWith(".creole")){
+    else if (readme_filename.endsWith(".creole")){
         var creole = new creole()
         var div = document.createElement('div');
         creole.parse(div, readme);
         readme = div.innerHTML
     }
-    if (readme_filename.endsWith(".org") || readme_filename.endsWith(".org-mode")){
+    else if (readme_filename.endsWith(".org") || readme_filename.endsWith(".org-mode")){
         var parser = new Org.Parser();
         var orgDocument = parser.parse(readme);
         var orgHTMLDocument = orgDocument.convert(Org.ConverterHTML, {});
         readme = orgHTMLDocument.toString()
+    }
+    else { // default to markdown
+        readme = marked(readme)
     }
     contents.innerHTML = DOMPurify.sanitize( readme );
 }
