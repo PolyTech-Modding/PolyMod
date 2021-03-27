@@ -104,26 +104,24 @@ function handleSearch(clear = true, after_checksum = null) {
             }
             // Examine the text in the response
             response.json().then(function (json_data) {
-                data = json_data;
-                
-                if (data.length > 0){
-                    if (after_checksum == data[0].checksum){
+                if (json_data.length > 0){
+                    if (after_checksum == json_data[0].checksum){
                         console.log("Removing leading duplicate entry")
-                        data = data.slice(1)
+                        json_data = json_data.slice(1)
                     }
                 }
-                data.forEach((result) => {
+                json_data.forEach((result) => {
                     addModCard(result);
                 });
 
-                if (data.length == 0 || data.length < per_page-1){
+                if (json_data.length == 0 || json_data.length < per_page-1){
                     // if page isn't full, there won't be another page
                     console.log("Page is emtpy or not full, end of resuls reached.")
                     is_end = true
                     results.innerHTML += '<div class="d-flex justify-content-center m-2 h5">You\'ve reached the end.</div>';
                 }
                 else {
-                    globalThis.after_checksum = data[data.length - 1].checksum;
+                    globalThis.after_checksum = json_data[json_data.length - 1].checksum;
                 }
                 is_loading = false;
             });

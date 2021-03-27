@@ -145,6 +145,7 @@ function tryGetToken(){
     }
 }
 
+let coreMods = []
 
 function initialize(forceReload=false){
     //localStorage.me
@@ -156,6 +157,22 @@ function initialize(forceReload=false){
     //localStorage.team_token
     if (localStorage.as_team == undefined){
         localStorage.as_team = false
+    }
+    
+    if (localStorage.coreMods == undefined){
+        fetch("/static/core_mods.json")
+            .then(function (response) {
+                response.json().then(function (json_data){
+                    console.log("Fetched core mods.")
+                    coreMods = json_data
+                    localStorage.coreMods = JSON.stringify(json_data)
+                    processCoreMods()
+                })
+            })
+    }
+    else {
+        coreMods = JSON.parse(localStorage.coreMods)
+        processCoreMods()
     }
     
     if (localStorage.me && !forceReload){ // if user_data is cached
@@ -284,6 +301,23 @@ function teamSwitch(){
             }
         })
     }
+}
+
+function processCoreMods(){
+    let target = document.getElementById("coreMods")
+    target.innerHTML = ""
+
+    coreMods.forEach(entry => {
+        let list_item = document.createElement("li")
+        let link = document.createElement("a")
+        list_item.appendChild(link)
+
+        link.classList.add("dropdown-item")
+        link.href = entry.path
+        link.text = entry.name
+
+        target.appendChild(list_item)
+    })
 }
 
 initialize()
