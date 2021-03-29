@@ -120,7 +120,7 @@ pub async fn get_token(
                 .execute(pool)
                 .await?;
 
-                return Ok(HttpResponse::Ok().body(token));
+                return Ok(HttpResponse::Ok().body(&format!("User registered, your token is: {}", token)));
             }
         }
     }
