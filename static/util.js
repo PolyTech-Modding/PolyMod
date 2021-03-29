@@ -162,16 +162,22 @@ function initialize(forceReload=false){
     if (localStorage.coreMods == undefined){
         fetch("/static/core_mods.json")
             .then(function (response) {
-                response.json().then(function (json_data){
-                    console.log("Fetched core mods.")
-                    coreMods = json_data
-                    localStorage.coreMods = JSON.stringify(json_data)
-                    processCoreMods()
-                })
+                if (response.status == 200){
+                    response.json().then(function (json_data){
+                        console.log("Fetched core mods.")
+                        coreMods = json_data
+                        localStorage.coreMods = JSON.stringify(json_data)
+                        processCoreMods()
+                    })
+                }
+                
             })
     }
     else {
-        coreMods = JSON.parse(localStorage.coreMods)
+        try {
+            coreMods = JSON.parse(localStorage.coreMods)
+        }
+        catch {}
         processCoreMods()
     }
     
