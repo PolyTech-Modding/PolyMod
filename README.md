@@ -71,6 +71,8 @@ mods_path = "./tmp"
 
 and fill in all the required values.
 
+For the core mods to appear in the navbar, you should create a file at `static/core_mods.json`, see `static/core_mods.json.example` for an example config.
+
 ## Updating
 
 When updating, you only ever need to run `git pull` and `cargo sqlx migrate run`

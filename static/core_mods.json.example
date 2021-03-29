@@ -1,0 +1,10 @@
+[
+    {
+        "name": "PolyTech Framework",
+        "path": "/mod?name=polytech_framework"
+    },
+    {
+        "name": "Server Switcher",
+        "path": "/mod?name=server_switcher"
+    }
+]
