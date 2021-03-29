@@ -126,8 +126,8 @@ const TeamRoles = {
 var data, user_data, oauth2_url, logged_in
 
 
-function tryGetToken(){
-    if ((!localStorage.token || localStorage.token == "null") && localStorage.logged_in == "true"){
+function tryGetToken(force=false){
+    if (((!localStorage.token || localStorage.token == "null") && localStorage.logged_in == "true") || force){
         fetch("/token")
             .then(function (response) {
                 if (response.status !== 200){
@@ -185,23 +185,28 @@ function initialize(forceReload=false){
         setup(JSON.parse(localStorage.me))
     }
     else { // if not cached, fetch user data
-        fetch("/public_api/me")
-            .then(function (response) {
-                if (response.status !== 200){
-                    console.log(response.status)
-                    localStorage.logged_in = false
-                    return
-                }
-            
-                response.json().then(function (json_data) {
-                    //console.log(json_data)
-                    localStorage.logged_in = true
-                    localStorage.me = JSON.stringify(json_data)
-                    tryGetToken()
-                    setup(json_data)
-                })
+        fetch("/token").then(
+            function (res){
+                fetch("/public_api/me")
+                    .then(function (response) {
+                        if (response.status !== 200){
+                            console.log(response.status)
+                            localStorage.logged_in = false
+                            return
+                        }
+                    
+                        response.json().then(function (json_data) {
+                            //console.log(json_data)
+                            localStorage.logged_in = true
+                            localStorage.me = JSON.stringify(json_data)
+                            tryGetToken()
+                            setup(json_data)
+                        })
+                    }
+                )
             }
         )
+        
     }
     tryGetToken()
     
