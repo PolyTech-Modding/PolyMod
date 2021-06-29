@@ -2,9 +2,9 @@
 
 ## 0.1.0-alpha
 
-- #b678107 Implemented/Merged frontend - @nitsuga5124
-- #0fbb959 Per page threshold increased to 30 to avoid rate limits - @nitsuga5124
-- #7fe3433 Formatted all the code consistently - @nitsuga5124
+- #b678107 Implemented/Merged frontend - @vicky5124
+- #0fbb959 Per page threshold increased to 30 to avoid rate limits - @vicky5124
+- #7fe3433 Formatted all the code consistently - @vicky5124
 
 ## 0.1.1-alpha
 - #655dec0 Various frontend bug fixes - @Conqu3red

@@ -188,7 +188,7 @@ function addModCard(result) {
             <div class="card-body">
                 <div id="content" class="card-text p-0" role="button">
                     <h5>API Switcher</h5>
-                    <p class="h6 mb-1">Authors: nitsuga5124#2207</p>
+                    <p class="h6 mb-1">Authors: vicky5124#2207</p>
                     <p class="mb-1">A mod to use servers other than the official</p>
                     <span class="badge bg-primary">Core Framework</span>
                     <span class="badge bg-secondary">Category: Utilities</span>
