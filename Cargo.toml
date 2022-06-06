@@ -41,7 +41,7 @@ default-features = false
 features = ["redis-store"]
 
 [dependencies.tokio]
-version = "0.2" # 1
+version = "1.8" # 1
 features = ["fs"]
 
 [dependencies.serde]
